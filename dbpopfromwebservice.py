@@ -164,7 +164,7 @@ def processNonGameData( bNode ):
 	time.sleep(1)
 	print( "\n\ncollecting ps3 non game data: " + unicode( pageCount) + " pages" )
 	
-	while curPage < pageCount and curPage <= gamedata.MAX_ALLOWABLE_PAGES:
+	while curPage < pageCount and curPage < gamedata.MAX_ALLOWABLE_PAGES:
 		try:
 			curPage = curPage + 1
 			hardwareList = wsGetHardware( bNode, curPage )
@@ -197,9 +197,9 @@ api = API(AWS_KEY, SECRET_KEY, 'us')
 
 # deal with the games.
 failfile.write( "\nsoftware fails..." )
-processSoftwareData( "ps3" ) # technically includes hardware data.
-processSoftwareData( "xbox360" )
-processSoftwareData( "wii" )
+#processSoftwareData( "ps3" ) # technically includes hardware data.
+#processSoftwareData( "xbox360" )
+#processSoftwareData( "wii" )
 
 # deal with the game hardware
 failfile.write( "\nhardware fails..." )

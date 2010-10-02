@@ -18,11 +18,16 @@ else{
 	$orderType = 'last_updated';
 }
 
+$maxPrice = 50;
+if( $platform == 'wii' ){
+	$maxPrice = 40;
+}
+
 $query = "select * " .
 "from games as g " .
 "left join game_reviews gr " .
 "on g.asin = gr.asin " . 
-"where price > 0 and price < 50 " . 
+"where price > 0 and price < $maxPrice " . 
 "and lowest_price > 0 and lowest_price < price and platform = '$platform'";
 
 

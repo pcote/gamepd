@@ -56,7 +56,6 @@ if( $reviewScore != Null ){
 <?php
 	$curCell = $curCell + 1;
 }
-
 ?>
 </table>
 
