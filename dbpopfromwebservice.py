@@ -4,19 +4,16 @@
 # by Phil Cote
 # Purpose: Migrate Playstation 3 data from amazon web services to mysql.
 # the database being used is also used by php as a source for generating web pages
-# Last Updated: September 14, 2010
-# Status: Curenlty working on getting xbox 360 data into the system.
+# Last Updated: October 6, 2010
+# Status: Update in progress to make it work with the OOP version of gamedata.
+# Not yet finished... and will need to be tested out
 
-# NOTE: Still a consitency problem.  Hardware functions take browse nodes while
-# the actual game functions take strings.
 
-# TODO: Hardware will slip into the system on the "process software pass"
-# and get eliminated from the game table during the two "process non games pass".
-# For a go live scenario, I'll probably want this to be transactional so users don't 
-# end up seeing a whole lot of hardware while an update of the database is in progress.
 
 from amazonproduct import * # star import used so attribute exceptions can be handled.
 import MySQLdb
+from MySQLdb import IntegrityError
+
 import time
 import datetime
 import pdb
@@ -33,7 +30,7 @@ def shouldAddGameToDatabase( game ):
 			return False
 		
 		# make sure it's not hardware.
-		if getDBHardwareRecord( game['asin'] ) != None:
+		if gameDB.getHardwareRecord( game['asin'] ) != None:
 			return False
 		
 		# only stuff that's 49.99 or less should be added to the database. (applicable to xbox 360 and ps3 )
@@ -45,7 +42,7 @@ def shouldAddGameToDatabase( game ):
 			return False
 		
 		# if the asin already exists in the database, it doesn't need to be astedded again.
-		dbRec = getDBGameRecord( game['asin'] )
+		dbRec = gameDB.getGameRecord( game['asin'] )
 		if len( dbRec ) > 0:
 			return False
 		
@@ -71,7 +68,7 @@ def shouldUpdateListPrice( game ):
 	
 	
 	wsPrice = game['price']
-	dbRec = getDBGameRecord( game['asin'] )
+	dbRec = gameDB.getGameRecord( game['asin'] )
 	
 	# empty rec case
 	if len(dbRec) == 0:
@@ -97,16 +94,16 @@ def storeGameData( wsGameList ):
 			price = wsGame['price']
 			#print( "DEBUG: asin: " + asin + " title: " + gameTitle ) # keep for collecting samples to debug by			
 			if shouldAddGameToDatabase( wsGame ):
-				addGameToDatabase( wsGame )
+				gameDB.addGame( wsGame )
 				print( "added asin: " + asin + " title: " + gameTitle ) # keep for collecting samples to debug by
 			elif shouldUpdateListPrice( wsGame ):
-				updatePriceInDatabase( wsGame )
+				gameDB.updatePrice( wsGame )
 				print( "updated asin: " + asin + " title: " + gameTitle ) # keep for collecting samples to debug by
 
-			refreshLowestPrice( wsGame )
+			gameDB.refreshLowestPrice( wsGame )
 
 			
-		except( mysql.IntegrityError ):
+		except( IntegrityError ):
 			errorCount = errorCount + 1
 			print( "integrity errors: " + str( errorCount ) )
 			failfile.write( "\nasin number: %s causes an integrity violation and will not be added to the game table" % (asin) )
@@ -121,9 +118,9 @@ def storeNonGameData( hardwareList ):
 
 	for hwItem in hardwareList:
 		try:
-			if getDBHardwareRecord( hwItem['asin'] ) == None:
-				addHardwareToDatabase( hwItem )
-		except( mysql.IntegrityError ):
+			if gameDB.getHardwareRecord( hwItem['asin'] ) == None:
+				gameDB.addHardware( hwItem )
+		except( IntegrityError ):
 			print( "integrity error regarding item: " + hwItem['asin'] )
 		except( UnicodeEncodeError ):
 			print( "store non game data: UNICODE fail over item " + hwItem['asin'] )
@@ -134,8 +131,8 @@ def storeNonGameData( hardwareList ):
 # It pulls game data from the web service and loops through the recs
 # to add to the database, update, or discard.
 def processSoftwareData( platform ):
-	pageCount = wsGetGamePageCount( platform )
-	gameList = wsGetGames( platform, 1 )
+	pageCount = gameWS.getGamePageCount( platform )
+	gameList = gameWS.getGames( platform, 1 )
 	curPage = 1
 	
 	storeGameData( gameList )
@@ -145,7 +142,7 @@ def processSoftwareData( platform ):
 	print( "collecting software data for the %s..." % ( platform ) )
 	while curPage < pageCount:
 		curPage = curPage + 1
-		gameList = wsGetGames( platform, curPage )
+		gameList = gameWS.getGames( platform, curPage )
 		storeGameData( gameList )
 		print( "\nfinished writing item page: " + str( curPage ) + " of " + str(pageCount)  )	
 
@@ -155,19 +152,19 @@ def processSoftwareData( platform ):
 # to add to the database.
 def processNonGameData( bNode ):
 	
-	hardwareList = wsGetHardware(  bNode, 1 )
+	hardwareList = gameWS.getHardware(  bNode, 1 )
 	storeNonGameData(  hardwareList )
 	
-	pageCount = wsGetHardwarePageCount( bNode )
+	pageCount = gameWS.getHardwarePageCount( bNode )
 	curPage = 1 # NOTE: may need to be changed for debugging purposes so we don't have to wait as long to get to the "odd" data cases.
 	print( "\nfinished writing item page: " + unicode( curPage ) )
 	time.sleep(1)
 	print( "\n\ncollecting ps3 non game data: " + unicode( pageCount) + " pages" )
 	
-	while curPage < pageCount and curPage < gamedata.MAX_ALLOWABLE_PAGES:
+	while curPage < pageCount and curPage < gameWS.MAX_ALLOWABLE_PAGES:
 		try:
 			curPage = curPage + 1
-			hardwareList = wsGetHardware( bNode, curPage )
+			hardwareList = gameWS.getHardware( bNode, curPage )
 			storeNonGameData( hardwareList )
 			print( "\nfinished writing non game item page: " + str( curPage ) + " of " + str( pageCount ) )
 		except( NoExactMatchesFound ):
@@ -177,43 +174,48 @@ def processNonGameData( bNode ):
 
 
 def processReviews(  platform ):
-	ps3Reviews = gamedata.getAllReviews( platform )
+	ps3Reviews = revWS.getAllReviews( platform )
 	for review in ps3Reviews:
 
-		game = dbGetGameByTitle( review[  'game_title'] )
-		if not reviewInDatabase( review ) and game != None:
-			addReviewToDatabase( game, review )
+		game = gameDB.getGameByTitle( review[  'game_title'] )
+		if not revDB.reviewExists( review ) and game != None:
+			revDB.addReview( game, review )
 			print( "review added for %s" % ( review['game_title'] ) )
 
 
 
 # connection to log file
+# TODO: "failfile" seems a little unprofessional at this stage of the game.  Change it.
 failfile = open( "failfile.txt", "w" )
 
-# set up of main interface to amazon api
-AWS_KEY = cp.get( "db config", "aws_key" )
-SECRET_KEY = cp.get( "db config", "secret_key" )
-api = API(AWS_KEY, SECRET_KEY, 'us') 
+configFileName = "dbconfig.cfg"
+gameDB = GameDatabase(configFileName)
+gameWS = GameWebService(configFileName)
+revDB = ReviewDatabase(configFileName)
+revWS = ReviewWebService(configFileName)
 
-# deal with the games.
+# deal with the games and (unfortunately) the hardware that goes in with it.
 failfile.write( "\nsoftware fails..." )
-#processSoftwareData( "ps3" ) # technically includes hardware data.
+#processSoftwareData( "ps3" )
+
 #processSoftwareData( "xbox360" )
 #processSoftwareData( "wii" )
 
-# deal with the game hardware
-failfile.write( "\nhardware fails..." )
-#processNonGameData( gamedata.PS3_HARDWARE )
-#processNonGameData( gamedata.XBOX360_HARDWARE )
-#processNonGameData( gamedata.WII_HARDWARE )
+# deal with the game hardware.
+#failfile.write( "\nhardware fails..." )
+#processNonGameData( gameWS.PS3_HARDWARE )
+#processNonGameData( gameWS.XBOX360_HARDWARE )
+#processNonGameData( gameWS.WII_HARDWARE )
 
 # deal with the controllers ( controllers not platform specific as far as amazon's browse node hierarchy is concerned )
-failfile.write( "\ncontroller fails..." )
-processNonGameData( gamedata.GAME_CONTROLLERS )
+#failfile.write( "\ncontroller fails..." )
+#processNonGameData( gameWS.GAME_CONTROLLERS )
 
 failfile.write( "\nreview fails..." )
-processReviews( "ps3" )
-processReviews( "xbox360" )
-processReviews( "wii" )
+#processReviews( "ps3" )
+#processReviews( "xbox360" )
+#processReviews( "wii" )
 failfile.close()
-db.close()
+
+gameDB.close()
+revDB.close()

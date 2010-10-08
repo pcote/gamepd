@@ -3,9 +3,13 @@
 # by Phil Cote
 # A modularization attempt to clean up the main logic by taking out all the getter and setter stuff for web services and the DB
 # Ultimate goal is to make the code base a bit more test friendly.
-# Last Updated: September 14, 2010
-# Status: Works pretty well.  In progress with getting xbox 360 data into the database so some 
-# small changes added to help ensure there is support for that.
+# Last Updated: October 6, 2010
+# Status: Overhauled to make it a little more object oriented ( ie class based )
+# TODO: This is going to need something set up in these classes for closing connections,
+# at least in the database classes.
+# TODO: This is also going to need to have some exception handling built into it at some point.
+# Lack of set up to handle nasty surprises == inevitably nasty scenarios.
+
 
 """
 Game Data Module.
@@ -61,6 +65,7 @@ class GameDatabase:
 		dbString = cp.get( "db config", "db" )
 
 		mysql = MySQLdb
+		self.mysql = mysql
 		self.db = mysql.connect( host=hostString, passwd = pw, user=userString, db=dbString )
 		self.csr = self.db.cursor()
 
@@ -84,7 +89,7 @@ class GameDatabase:
 		query = "select * from games where asin = %s"
 		resCount = self.csr.execute( query, ( asinNum ) )
 
-		resSet = csr.fetchone()
+		resSet = self.csr.fetchone()
 		gameRec = self.makeGameDic( resSet )
 		
 		return gameRec
@@ -161,7 +166,7 @@ class GameDatabase:
 
 		updateQuery = """update games set price = %s, old_price = %s, last_updated = %s where asin = %s"""
 		asin = game['asin']
-		gameRec = getDBGameRecord( asin )
+		gameRec = self.getGameRecord( asin )
 		newPrice = game['price']
 		oldPrice = gameRec['price']
 		self.csr.execute( updateQuery, ( newPrice, oldPrice, ts, asin ) )
@@ -184,13 +189,17 @@ class GameDatabase:
 		query = "update games set lowest_price = %s where asin = %s"
 		self.csr.execute( query, ( wsGame[ 'lowestPrice'], wsGame[ 'asin' ] ) )	
 
+	def close(self):
+		"""
+		Closes the mysql connection for the game database.
+		"""
+		self.csr.close()
 
 
 
 
 
 class GameWebService:
-	
 
 	def __init__(self, configFileName ):
 		cp = ConfigParser.SafeConfigParser()
@@ -434,7 +443,7 @@ class ReviewDatabase:
 		return True
 
 
-	def addReviewToDatabase( self, game, review ):
+	def addReview( self, game, review ):
 		"""Puts a review into the database.
 
 		game -- The game dictionary object.  Should have originated from the database. (I'm 90% sure of this)
@@ -448,6 +457,11 @@ class ReviewDatabase:
 		asin = game['asin']
 		self.csr.execute( query, ( reviewID, reviewScore, articleLink, asin ) )
 
+	def close(self):
+		"""
+		Closes the mysql connection for the review database.
+		"""
+		self.csr.close()
 
 
 if __name__ == "__main__":
