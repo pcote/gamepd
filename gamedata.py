@@ -1,12 +1,10 @@
 # -*- coding: iso-8859-1 -*-
 # gamedata.py
 # by Phil Cote
-# A modularization attempt to clean up the main logic by taking out all the getter and setter stuff for web services and the DB
+# An object oriented attempt to clean up the main logic by taking out all the getter and setter stuff for web services and the DB
 # Ultimate goal is to make the code base a bit more test friendly.
-# Last Updated: October 6, 2010
-# Status: Overhauled to make it a little more object oriented ( ie class based )
-# TODO: This is going to need something set up in these classes for closing connections,
-# at least in the database classes.
+# Last Updated: October 7, 2010
+
 # TODO: This is also going to need to have some exception handling built into it at some point.
 # Lack of set up to handle nasty surprises == inevitably nasty scenarios.
 

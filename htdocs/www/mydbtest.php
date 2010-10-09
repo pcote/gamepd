@@ -1,5 +1,6 @@
 <html>
 <head><title>Game Price Drop</title>
+<link type = "text/css" rel="stylesheet" href = "css/blemish/style.css"></style>
 <script type = "text/javascript" src = "jquery.js"></script>
 <script type="text/javascript">
 
@@ -77,17 +78,17 @@ document.onkeydown=keyTest;
 </script>
 
 </head>
-<body onload="loadGameData( 'ps3', 'last_updated' )">
+<body onload="loadGameData( 'wii', 'last_updated' )">
 
 <center><font size="5" align="center">Game Price Drop</font><br />
 <a href = "javascript:loadGameData( 'ps3', 'current' )">Playstation 3</a>&nbsp;&nbsp;&nbsp;
 <a href = "javascript:loadGameData( 'xbox360', 'current' )">XBox 360</a>&nbsp;&nbsp;&nbsp;
 <a href = "javascript:loadGameData( 'wii', 'current' )">Wii</a><br />
 
-<a href = "javascript:loadGameData( 'current', 'last_updated' )">Show Me Most Recent Updates</a>&nbsp;&nbsp;&nbsp;
+<a href = "javascript:loadGameData( 'current', 'last_updated' )">Show Me Latest Drops</a>&nbsp;&nbsp;&nbsp;
 <a href = "javascript:loadGameData( 'current', 'cheap' )">Show Me Cheapest</a> &nbsp;&nbsp;&nbsp;
 <a href = "javascript:loadGameData( 'current', 'alpha' )">Alphabetize Them</a> &nbsp;&nbsp;&nbsp;
-<a href = "javascript:loadGameData( 'current', 'release' )">Newest</a>
+<a href = "javascript:loadGameData( 'current', 'release' )">Show Me Newest</a>
 </center>
 <center>
 <table width="80%">

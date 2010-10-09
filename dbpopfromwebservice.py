@@ -4,9 +4,9 @@
 # by Phil Cote
 # Purpose: Migrate Playstation 3 data from amazon web services to mysql.
 # the database being used is also used by php as a source for generating web pages
-# Last Updated: October 6, 2010
-# Status: Update in progress to make it work with the OOP version of gamedata.
-# Not yet finished... and will need to be tested out
+# Last Updated: October 7, 2010
+# Status: Done with current round of updates.  Should now be complying with the object
+# oriented version of gamedata module.
 
 
 
@@ -196,25 +196,25 @@ revWS = ReviewWebService(configFileName)
 
 # deal with the games and (unfortunately) the hardware that goes in with it.
 failfile.write( "\nsoftware fails..." )
-#processSoftwareData( "ps3" )
+processSoftwareData( "ps3" )
 
-#processSoftwareData( "xbox360" )
-#processSoftwareData( "wii" )
+processSoftwareData( "xbox360" )
+processSoftwareData( "wii" )
 
 # deal with the game hardware.
-#failfile.write( "\nhardware fails..." )
-#processNonGameData( gameWS.PS3_HARDWARE )
-#processNonGameData( gameWS.XBOX360_HARDWARE )
-#processNonGameData( gameWS.WII_HARDWARE )
+failfile.write( "\nhardware fails..." )
+processNonGameData( gameWS.PS3_HARDWARE )
+processNonGameData( gameWS.XBOX360_HARDWARE )
+processNonGameData( gameWS.WII_HARDWARE )
 
 # deal with the controllers ( controllers not platform specific as far as amazon's browse node hierarchy is concerned )
-#failfile.write( "\ncontroller fails..." )
-#processNonGameData( gameWS.GAME_CONTROLLERS )
+failfile.write( "\ncontroller fails..." )
+processNonGameData( gameWS.GAME_CONTROLLERS )
 
 failfile.write( "\nreview fails..." )
-#processReviews( "ps3" )
-#processReviews( "xbox360" )
-#processReviews( "wii" )
+processReviews( "ps3" )
+processReviews( "xbox360" )
+processReviews( "wii" )
 failfile.close()
 
 gameDB.close()
