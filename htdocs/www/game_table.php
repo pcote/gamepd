@@ -2,7 +2,7 @@
 
 
 
-<table border="1px" width="75%" cellspacing=20 >
+<table border="1px" width="75%" cellspacing=20>
 <tr>
 <?php
 

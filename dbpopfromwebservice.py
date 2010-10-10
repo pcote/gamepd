@@ -18,6 +18,8 @@ import time
 import datetime
 import pdb
 import gamedata
+import optparse
+from optparse import OptionParser
 from gamedata import *
 
 
@@ -81,6 +83,8 @@ def shouldUpdateListPrice( game ):
 # Take a raw list of games (typically 10) and store them in the database.
 # NOTE: At this pass, non games can end up in here.  ( controllers, consoles, ect )
 # Removal of those is taken care of on a separate pass.
+# TODO: Updates of ANY game data should probably be done here.
+# However, updates to stuff other than list price should not affect the last updated field.  Only list price changes should affect that.
 def storeGameData( wsGameList ):
 	asin=""
 	price=0
@@ -95,10 +99,14 @@ def storeGameData( wsGameList ):
 			#print( "DEBUG: asin: " + asin + " title: " + gameTitle ) # keep for collecting samples to debug by			
 			if shouldAddGameToDatabase( wsGame ):
 				gameDB.addGame( wsGame )
-				print( "added asin: " + asin + " title: " + gameTitle ) # keep for collecting samples to debug by
+				addMessage = "\nadded asin: " + asin + " title: " + gameTitle
+				print( addMessage ) # keep for collecting samples to debug by
+				updateFile.write( addMessage )
 			elif shouldUpdateListPrice( wsGame ):
 				gameDB.updatePrice( wsGame )
+				updateMessage = "\nupdated asin: " + asin + " title: " + gameTitle + "\n"
 				print( "updated asin: " + asin + " title: " + gameTitle ) # keep for collecting samples to debug by
+				updateFile.write( updateMessage )
 
 			gameDB.refreshLowestPrice( wsGame )
 
@@ -120,6 +128,8 @@ def storeNonGameData( hardwareList ):
 		try:
 			if gameDB.getHardwareRecord( hwItem['asin'] ) == None:
 				gameDB.addHardware( hwItem )
+				updateFile.write( "\nhardware added.  asin: " + hwItem['asin'] + " item name: " + unicode( hwItem['item_name'] ) )
+				
 		except( IntegrityError ):
 			print( "integrity error regarding item: " + hwItem['asin'] )
 		except( UnicodeEncodeError ):
@@ -180,19 +190,31 @@ def processReviews(  platform ):
 		game = gameDB.getGameByTitle( review[  'game_title'] )
 		if not revDB.reviewExists( review ) and game != None:
 			revDB.addReview( game, review )
-			print( "review added for %s" % ( review['game_title'] ) )
+			reviewAddedMessage = 
+			print( "\nreview added for %s" % ( review['game_title'] ) )
+			updateFile.write( "\nreview added for %s" % ( review['game_title'] ) )
 
+
+
+parser = OptionParser()
+dbVersion = "dev" # default to the locahost version
+parser.add_option( "-v" )
+(options, args ) = parser.parse_args()
+
+if options.v != None:
+	dbVersion = options.v
 
 
 # connection to log file
 # TODO: "failfile" seems a little unprofessional at this stage of the game.  Change it.
 failfile = open( "failfile.txt", "w" )
+updateFile  = open( "updates.txt", "w" )
 
 configFileName = "dbconfig.cfg"
-gameDB = GameDatabase(configFileName)
-gameWS = GameWebService(configFileName)
-revDB = ReviewDatabase(configFileName)
-revWS = ReviewWebService(configFileName)
+gameDB = GameDatabase(configFileName, dbVersion)
+gameWS = GameWebService(configFileName, dbVersion)
+revDB = ReviewDatabase(configFileName, dbVersion)
+revWS = ReviewWebService(configFileName, dbVersion)
 
 # deal with the games and (unfortunately) the hardware that goes in with it.
 failfile.write( "\nsoftware fails..." )
@@ -216,6 +238,6 @@ processReviews( "ps3" )
 processReviews( "xbox360" )
 processReviews( "wii" )
 failfile.close()
-
+updateFile.close()
 gameDB.close()
 revDB.close()

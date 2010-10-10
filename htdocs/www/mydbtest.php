@@ -1,6 +1,12 @@
 <html>
 <head><title>Game Price Drop</title>
-<link type = "text/css" rel="stylesheet" href = "css/blemish/style.css"></style>
+<link type = "text/css" rel="stylesheet" href = "css/blemish/style.css" />
+
+<style type = "text/css">
+table { border-radius: 20px; }
+</style>
+
+</script>
 <script type = "text/javascript" src = "jquery.js"></script>
 <script type="text/javascript">
 

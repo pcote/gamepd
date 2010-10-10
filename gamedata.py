@@ -52,15 +52,15 @@ REVIEW_LINK = 9
 class GameDatabase:
 
 
-	def __init__(self, configFileName ):
+	def __init__(self, configFileName, dbVer ):
 
 		cp = ConfigParser.SafeConfigParser()
 		cp.read( configFileName )
 
-		hostString = cp.get( "db config", "host" )
-		pw = cp.get( "db config", "password" )
-		userString = cp.get( "db config", "user" )
-		dbString = cp.get( "db config", "db" )
+		hostString = cp.get( dbVer, "host" )
+		pw = cp.get( dbVer, "password" )
+		userString = cp.get( dbVer, "user" )
+		dbString = cp.get( dbVer, "db" )
 
 		mysql = MySQLdb
 		self.mysql = mysql
@@ -179,6 +179,10 @@ class GameDatabase:
 		query = """insert into game_hardware values( %s, %s )"""
 		self.csr.execute( query, ( hwItem['asin'], hwItem['item_name'] ) )
 
+		# removal any hardware that might be on the games table. (done to get around trigger permission problems on prod.)
+		deleteQuery = """delete from games where asin = %s"""
+		self.csr.execute( deleteQuery, ( hwItem['asin'] ) )
+
 
 	def refreshLowestPrice( self, wsGame ):
 		""" Ensures that the lowest price always ends up being the latest price from the web service
@@ -199,13 +203,13 @@ class GameDatabase:
 
 class GameWebService:
 
-	def __init__(self, configFileName ):
+	def __init__(self, configFileName, dbVer ):
 		cp = ConfigParser.SafeConfigParser()
 		cp.read( configFileName )
 
 		# set up of main interface to amazon api
-		AWS_KEY = cp.get( "db config", "aws_key" )
-		SECRET_KEY = cp.get( "db config", "secret_key" )
+		AWS_KEY = cp.get( dbVer, "aws_key" )
+		SECRET_KEY = cp.get( dbVer, "secret_key" )
 		self.api = API(AWS_KEY, SECRET_KEY, 'us') 
 
 		# browse node ids
@@ -378,7 +382,7 @@ class GameWebService:
 
 # TODO: Config file args need to be passed into all class constructors.
 class ReviewWebService:
-	def __init__(self, configFileName ):
+	def __init__(self, configFileName, dbVer ):
 		# note: technically, you don't need the configFileName argument.  there really isn't anything special about the args here.
 		# it's just here to be consistant with all the other classes.
 		pass
@@ -415,14 +419,14 @@ class ReviewWebService:
 
 	
 class ReviewDatabase:
-	def __init__(self, configFileName ):
+	def __init__(self, configFileName, dbVer ):
 		cp = ConfigParser.SafeConfigParser()
 		cp.read( configFileName )
 
-		hostString = cp.get( "db config", "host" )
-		pw = cp.get( "db config", "password" )
-		userString = cp.get( "db config", "user" )
-		dbString = cp.get( "db config", "db" )
+		hostString = cp.get( dbVer, "host" )
+		pw = cp.get( dbVer, "password" )
+		userString = cp.get( dbVer, "user" )
+		dbString = cp.get( dbVer, "db" )
 
 		mysql = MySQLdb
 		self.db = mysql.connect( host=hostString, passwd = pw, user=userString, db=dbString )
