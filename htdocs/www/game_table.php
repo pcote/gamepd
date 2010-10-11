@@ -23,6 +23,7 @@ for( $gameIndx = 0; $gameIndx < count( $gameList ); $gameIndx++ ){
 	$imageLink = $game['item_image'];
 	$detailPageLink = $game['item_page'];
 	$lowestPrice = $game['lowest_price'];
+	$releaseDate = $game[ 'release_date' ];
 
 	// hack for those cases where we have a regular list price but not a lowest.
 	if( $lowestPrice < 0 )
@@ -35,7 +36,12 @@ for( $gameIndx = 0; $gameIndx < count( $gameList ); $gameIndx++ ){
 <td>
 <?php
 echo( "<center><b>$title</b></center>" );
-echo( "<center><small>Last Known Price Update:<br /> $lastUpdate</small></center> <br />" );
+$order = $_GET['order'];
+
+if( $order == 'release' )
+	echo( "<center><small>Release Date:<br /> $lastUpdate</small></center> <br />" );
+else
+	echo( "<center><small>Last Known Price Update:<br /> $lastUpdate</small></center> <br />" );
 
 if( $imageLink == "NoImage" ){
 	echo( "<center><a href = '$detailPageLink'><img src='image/no_image.jpg' /></a></center><br />" );

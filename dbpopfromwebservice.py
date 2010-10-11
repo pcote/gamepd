@@ -190,7 +190,6 @@ def processReviews(  platform ):
 		game = gameDB.getGameByTitle( review[  'game_title'] )
 		if not revDB.reviewExists( review ) and game != None:
 			revDB.addReview( game, review )
-			reviewAddedMessage = 
 			print( "\nreview added for %s" % ( review['game_title'] ) )
 			updateFile.write( "\nreview added for %s" % ( review['game_title'] ) )
 
@@ -217,11 +216,11 @@ revDB = ReviewDatabase(configFileName, dbVersion)
 revWS = ReviewWebService(configFileName, dbVersion)
 
 # deal with the games and (unfortunately) the hardware that goes in with it.
-failfile.write( "\nsoftware fails..." )
-processSoftwareData( "ps3" )
+#failfile.write( "\nsoftware fails..." )
+#processSoftwareData( "ps3" )
 
-processSoftwareData( "xbox360" )
-processSoftwareData( "wii" )
+#processSoftwareData( "xbox360" )
+#processSoftwareData( "wii" )
 
 # deal with the game hardware.
 failfile.write( "\nhardware fails..." )

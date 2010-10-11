@@ -70,6 +70,11 @@ while( $row = mysql_fetch_assoc( $rs ) ){
 	$formattedDate = split( " ", $row[ 'last_updated'] );
 	$formattedDate = $formattedDate[0];
 	$gameRec[ 'last_updated' ] = $formattedDate; 
+	
+	$formattedReleaseDate = split( " ", $row['release_date'] );
+	$formattedReleaseDate = $formattedReleaseDate[0];
+	$gameRec['release_date'] = $formattedReleaseDate;
+
 	$gameList[] = $gameRec;
 	$gameCount = $gameCount + 1;
 }
