@@ -27,6 +27,10 @@ from gamedata import *
 # being stored in the database.
 def shouldAddGameToDatabase( game ):
 		
+		# the game should be released.
+		if game['releaseDate'] > datetime.datetime.now():
+			return False
+
 		# confirm that the price is valid.
 		if game['price'] == -1:
 			return False
@@ -50,7 +54,6 @@ def shouldAddGameToDatabase( game ):
 		
 		# online game codes not allowed.  physical titles only
 		titleString = game['gameTitle']
-
 		if titleString.find( '[Online Game Code' ) > 0:
 			return False
 			
@@ -216,11 +219,11 @@ revDB = ReviewDatabase(configFileName, dbVersion)
 revWS = ReviewWebService(configFileName, dbVersion)
 
 # deal with the games and (unfortunately) the hardware that goes in with it.
-#failfile.write( "\nsoftware fails..." )
-#processSoftwareData( "ps3" )
+failfile.write( "\nsoftware fails..." )
+processSoftwareData( "ps3" )
 
-#processSoftwareData( "xbox360" )
-#processSoftwareData( "wii" )
+processSoftwareData( "xbox360" )
+processSoftwareData( "wii" )
 
 # deal with the game hardware.
 failfile.write( "\nhardware fails..." )

@@ -11,6 +11,7 @@ if( $platform == Null ){
 	$platform = "ps3";
 }
 
+// order setup
 if( $_GET['order'] != Null ){
 	$orderType = $_GET['order'];
 }
@@ -28,7 +29,8 @@ $query = "select * " .
 "left join game_reviews gr " .
 "on g.asin = gr.asin " . 
 "where price > 0 and price < $maxPrice " . 
-"and lowest_price > 0 and lowest_price < price and platform = '$platform'";
+"and lowest_price > 0 and lowest_price < price and platform = '$platform' " . 
+"and release_date <= now()";
 
 
 // calculate the order

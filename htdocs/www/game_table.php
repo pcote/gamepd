@@ -35,11 +35,12 @@ for( $gameIndx = 0; $gameIndx < count( $gameList ); $gameIndx++ ){
 
 <td>
 <?php
+echo( "<font color = '#444444'>" );
 echo( "<center><b>$title</b></center>" );
 $order = $_GET['order'];
 
 if( $order == 'release' )
-	echo( "<center><small>Release Date:<br /> $lastUpdate</small></center> <br />" );
+	echo( "<center><small>Release Date:<br /> $releaseDate</small></center> <br />" );
 else
 	echo( "<center><small>Last Known Price Update:<br /> $lastUpdate</small></center> <br />" );
 
@@ -49,6 +50,7 @@ if( $imageLink == "NoImage" ){
 else{
 	echo( "<center><a href = '$detailPageLink'><img src = '$imageLink' /></a></center><br />" );
 }
+echo("</font>" );
 $price = number_format( $price, 2 );
 $lowestPrice = number_format( $lowestPrice, 2 );
 echo( "<center><font color = 'red'>list price \$$price</font></center>" );

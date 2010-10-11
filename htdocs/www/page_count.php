@@ -19,7 +19,9 @@ if( $platform == 'wii' ){
 $query = "select count(*) " .
 "from games as g " .
 "where price > 0 and price < $maxPrice " . 
-"and lowest_price > 0 and lowest_price < price and platform = '$platform'";
+"and lowest_price > 0 and lowest_price < price and platform = '$platform' " . 
+"and release_date <= now()";
+
 
 
 $rs = mysql_query( $query );
