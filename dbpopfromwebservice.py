@@ -28,6 +28,8 @@ from gamedata import *
 def shouldAddGameToDatabase( game ):
 		
 		# the game should be released.
+		if game['releaseDate'] == None:
+			return False
 		if game['releaseDate'] > datetime.datetime.now():
 			return False
 
