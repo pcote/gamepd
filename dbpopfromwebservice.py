@@ -212,7 +212,9 @@ if options.v != None:
 # connection to log file
 # TODO: "failfile" seems a little unprofessional at this stage of the game.  Change it.
 failfile = open( "failfile.txt", "w" )
-updateFile  = open( "updates.txt", "w" )
+updateFile  = open( "updates.txt", "a" )
+logDateString = str( datetime.datetime.today() )
+updateFile.write("\nDatabase update on the %s db for date: %s \n" % ( logDateString, dbVersion ) )
 
 configFileName = "dbconfig.cfg"
 gameDB = GameDatabase(configFileName, dbVersion)
@@ -221,25 +223,33 @@ revDB = ReviewDatabase(configFileName, dbVersion)
 revWS = ReviewWebService(configFileName, dbVersion)
 
 # deal with the games and (unfortunately) the hardware that goes in with it.
-failfile.write( "\nsoftware fails..." )
+updateFile.write( "SOFTWARE UPDATES...\n" )
+updateFile.write( "\nSoftware updates for the ps3...\n" )
 processSoftwareData( "ps3" )
-
+updateFile.write( "\nSoftware updates for the xbox 360...\n" )
 processSoftwareData( "xbox360" )
+updateFile.write( "\nSoftware updates for the wii...\n" )
 processSoftwareData( "wii" )
 
 # deal with the game hardware.
-failfile.write( "\nhardware fails..." )
+updateFile.write( "\nHardware Updates...\n" )
+updateFile.write( "\nHardware updates for the ps3...\n" )
 processNonGameData( gameWS.PS3_HARDWARE )
+updateFile.write( "\nHardware updates for the xbox 360...\n" )
 processNonGameData( gameWS.XBOX360_HARDWARE )
+updateFile.write( "\nHardware updates for the wii...\n" )
 processNonGameData( gameWS.WII_HARDWARE )
 
 # deal with the controllers ( controllers not platform specific as far as amazon's browse node hierarchy is concerned )
-failfile.write( "\ncontroller fails..." )
+updateFile.write( "\nGAME CONTROLLER UPDATES...\n" )
 processNonGameData( gameWS.GAME_CONTROLLERS )
 
-failfile.write( "\nreview fails..." )
+updateFile.write( "\nREVIEW UPDATES...\n" )
+updateFile.write( "\nReview updates for the ps3\n" )
 processReviews( "ps3" )
+updateFile.write( "\nReview updates for the ps3\n" )
 processReviews( "xbox360" )
+updateFile.write( "\nReview updates for the ps3\n" )
 processReviews( "wii" )
 failfile.close()
 updateFile.close()

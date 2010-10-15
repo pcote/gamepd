@@ -99,6 +99,9 @@ class GameDatabase:
 		"""
 
 		query = "select * from games where platform = '" + platform + "'";
+		if platform == 'all':
+			query = "select * from games"
+
 		resCount = self.csr.execute( query )
 		resSet = self.csr.fetchall()
 	
@@ -108,6 +111,7 @@ class GameDatabase:
 			gameList.append( gameRec )
 
 		return gameList
+
 
 	def getHardwareRecord( self, asinNum ):
 		"""Pull a hardware rec based on the asin.
@@ -160,13 +164,14 @@ class GameDatabase:
 
 
 	def updatePrice( self, game ):
-		"""Makes changes to a specific game."""  
+		"""Makes price changes to a specific game."""  
 
 		updateQuery = """update games set price = %s, old_price = %s, last_updated = %s where asin = %s"""
 		asin = game['asin']
 		gameRec = self.getGameRecord( asin )
 		newPrice = game['price']
 		oldPrice = gameRec['price']
+		pdb.set_trace()
 		self.csr.execute( updateQuery, ( newPrice, oldPrice, ts, asin ) )
 
 	def addHardware( self, hwItem ):
@@ -190,6 +195,13 @@ class GameDatabase:
 		NOTE: An update to the "last_updated" field does not need to happen for these cases."""
 		query = "update games set lowest_price = %s where asin = %s"
 		self.csr.execute( query, ( wsGame[ 'lowestPrice'], wsGame[ 'asin' ] ) )	
+
+	def syncGames( self, dbGame ):
+		"""
+		Sync games between a source database to the current database.
+		NOTE: Might be a solution to a problem i don't necessarily have.  
+		"""
+		pass
 
 	def close(self):
 		"""
