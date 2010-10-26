@@ -1,6 +1,8 @@
 <?php require( "read_database.php" ); ?>
 
-
+<script type = "text/javascript" src = "jquery.js"></script>
+<script type = "text/javascript" src = "thickbox.js"></script>
+<link rel = "stylesheet" href="thickbox.css" type = "text/css" media = "screen" />
 
 <table border="1px" width="75%" cellspacing=20>
 <tr>
@@ -59,7 +61,8 @@ if( $reviewScore != Null ){
 	echo( "<center><b>Review Score: <a href = '$reviewArticleLink'>$reviewScore</a></b></center>" );
 }
 ?>
-<br />
+
+<center><a class = 'thickbox' href='gamevidwin.php?platform=<?php echo($platform);?>&title=<?php echo(urlencode($title));?>&KeepThis=true&TB_iframe=true&height=400&width=410'><font size="2">Chaos TV</font></a></center><br />
 </td>
 <?php
 	$curCell = $curCell + 1;
