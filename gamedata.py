@@ -41,13 +41,19 @@ ASIN_COL = 0
 TITLE_COL = 1
 PRICE_COL = 2
 
-LAST_UPDATE_COL = 3
+LAST_UPDATED = 3
 OLD_PRICE = 4
 ITEM_IMAGE = 5
 ITEM_PAGE = 6
 LOWEST_PRICE = 7
-REVIEW_SCORE = 8
-REVIEW_LINK = 9
+
+REVIEW_ID = 0
+REVIEW_SCORE = 1
+ARTICLE_LINK = 2
+REVIEW_ASIN = 3
+
+
+
 
 class GameDatabase:
 
@@ -67,6 +73,9 @@ class GameDatabase:
 		self.db = mysql.connect( host=hostString, passwd = pw, user=userString, db=dbString )
 		self.csr = self.db.cursor()
 
+	# TODO: Make sure to check this to make sure the review fields set to none doesn't 
+	# break anything.  They don't belong there and they don't SEEM to be used.
+	# Once deemed safe to do so, this can go away.
 	def makeGameDic( self, resSet ):
 		"""
 		Utility used to turn a database result set into a list of 
@@ -77,7 +86,8 @@ class GameDatabase:
 			gameRec = { 'asin':resSet[ASIN_COL], 'gameTitle':resSet[TITLE_COL], \
 			'price':resSet[PRICE_COL], 'oldPrice':resSet[OLD_PRICE], \
 			'itemImage':resSet[ITEM_IMAGE], 'itemPage':resSet[ITEM_PAGE], \
-			'lowestPrice':resSet[LOWEST_PRICE], 'reviewScore':resSet[REVIEW_SCORE], 'reviewLink':resSet[REVIEW_LINK] }
+			'lowestPrice':resSet[LOWEST_PRICE], 'reviewScore':None, \
+			'reviewLink':None, 'lastUpdated':resSet[LAST_UPDATED] }
 		return gameRec
 
 
@@ -171,7 +181,6 @@ class GameDatabase:
 		gameRec = self.getGameRecord( asin )
 		newPrice = game['price']
 		oldPrice = gameRec['price']
-		pdb.set_trace()
 		self.csr.execute( updateQuery, ( newPrice, oldPrice, ts, asin ) )
 
 	def addHardware( self, hwItem ):
@@ -185,9 +194,7 @@ class GameDatabase:
 		self.csr.execute( query, ( hwItem['asin'], hwItem['item_name'] ) )
 
 		# removal any hardware that might be on the games table. (done to get around trigger permission problems on prod.)
-		deleteQuery = """delete from games where asin = %s"""
-		self.csr.execute( deleteQuery, ( hwItem['asin'] ) )
-
+		self.removeGame( hwItem['asin'] )
 
 	def refreshLowestPrice( self, wsGame ):
 		""" Ensures that the lowest price always ends up being the latest price from the web service
@@ -196,12 +203,10 @@ class GameDatabase:
 		query = "update games set lowest_price = %s where asin = %s"
 		self.csr.execute( query, ( wsGame[ 'lowestPrice'], wsGame[ 'asin' ] ) )	
 
-	def syncGames( self, dbGame ):
-		"""
-		Sync games between a source database to the current database.
-		NOTE: Might be a solution to a problem i don't necessarily have.  
-		"""
-		pass
+
+	def removeGame( self, asin ):
+		query = "delete from games where asin = %s"
+		self.csr.execute( query, ( asin ) )
 
 	def close(self):
 		"""
@@ -259,6 +264,7 @@ class GameWebService:
 
 	def _getLowestPrice( self, node ):
 		"""get the lowest available price from the item node passed in here."""
+
 		price = -1
 		if etree.tostring(node).find( "<LowestNewPrice>" ) > -1:
 			if etree.tostring(node).find("Too low to display" ) < 0:
@@ -470,6 +476,19 @@ class ReviewDatabase:
 		articleLink = str(review['link_back_url'])
 		asin = game['asin']
 		self.csr.execute( query, ( reviewID, reviewScore, articleLink, asin ) )
+
+	def getReviews( self ):
+		resList = list()
+		query = "select * from game_reviews"
+		self.csr.execute( query )
+		
+		resSet = self.csr.fetchall()	
+		for res in resSet:
+			newListItem = { 'reviewID': res[REVIEW_ID], 'score': res[REVIEW_SCORE], \
+					'articleLink': res[ARTICLE_LINK], 'asin':res[REVIEW_ASIN] }
+			resList.append( newListItem )
+
+		return resList
 
 	def close(self):
 		"""

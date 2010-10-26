@@ -119,9 +119,9 @@ def storeGameData( wsGameList ):
 		except( IntegrityError ):
 			errorCount = errorCount + 1
 			print( "integrity errors: " + str( errorCount ) )
-			failfile.write( "\nasin number: %s causes an integrity violation and will not be added to the game table" % (asin) )
+			updateFile.write( "\nasin number: %s causes an integrity violation and will not be added to the game table" % (asin) )
 		except( UnicodeEncodeError ):
-			failfile.write( "\nasin number: %s fails due to unicode encoding problem" %(asin) )
+			updateFile.write( "\nasin number: %s fails due to unicode encoding problem" %(asin) )
 			
 			
 
@@ -185,7 +185,7 @@ def processNonGameData( bNode ):
 		except( NoExactMatchesFound ):
 			msg = "could not find an exact match for page " + str( curPage ) + " for VideoGames on browse node: " + bNode
 			print( msg )
-			failfile.write( "\n" + msg )
+			updateFile.write( "\n" + msg )
 
 
 def processReviews(  platform ):
@@ -214,7 +214,7 @@ if options.v != None:
 failfile = open( "failfile.txt", "w" )
 updateFile  = open( "updates.txt", "a" )
 logDateString = str( datetime.datetime.today() )
-updateFile.write("\nDatabase update on the %s db for date: %s \n" % ( logDateString, dbVersion ) )
+updateFile.write("\n\nDatabase update on the %s db for date: %s \n" % ( logDateString, dbVersion ) )
 
 configFileName = "dbconfig.cfg"
 gameDB = GameDatabase(configFileName, dbVersion)
@@ -223,6 +223,7 @@ revDB = ReviewDatabase(configFileName, dbVersion)
 revWS = ReviewWebService(configFileName, dbVersion)
 
 # deal with the games and (unfortunately) the hardware that goes in with it.
+
 updateFile.write( "SOFTWARE UPDATES...\n" )
 updateFile.write( "\nSoftware updates for the ps3...\n" )
 processSoftwareData( "ps3" )
@@ -244,6 +245,7 @@ processNonGameData( gameWS.WII_HARDWARE )
 updateFile.write( "\nGAME CONTROLLER UPDATES...\n" )
 processNonGameData( gameWS.GAME_CONTROLLERS )
 
+# TODO: Mystery bug causes the connection to die on prod unless reviews are run by themselves.  Look into it.
 updateFile.write( "\nREVIEW UPDATES...\n" )
 updateFile.write( "\nReview updates for the ps3\n" )
 processReviews( "ps3" )
