@@ -27,9 +27,15 @@ if( $platform == 'wii' ){
 $query = "select * " .
 "from games as g " .
 "left join game_reviews gr " .
-"on g.asin = gr.asin " . 
-"where price > 0 and price < $maxPrice " . 
-"and lowest_price > 0 and lowest_price < price and platform = '$platform' " . 
+"on g.asin = gr.asin " .
+"where price > 0 and price < $maxPrice " .
+"and lowest_price > 0 and lowest_price < price and platform = '$platform' " .
+"and release_date <= now() " .
+"union select * " .
+"from games as g " .
+"left join game_reviews gr " .
+"on g.asin = gr.asin " .
+"where price = 0 and platform = '$platform' " . 
 "and release_date <= now()";
 
 

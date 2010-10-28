@@ -46,6 +46,8 @@ OLD_PRICE = 4
 ITEM_IMAGE = 5
 ITEM_PAGE = 6
 LOWEST_PRICE = 7
+PLATFORM = 10
+RELEASE_DATE = 11
 
 REVIEW_ID = 0
 REVIEW_SCORE = 1
@@ -87,7 +89,7 @@ class GameDatabase:
 			'price':resSet[PRICE_COL], 'oldPrice':resSet[OLD_PRICE], \
 			'itemImage':resSet[ITEM_IMAGE], 'itemPage':resSet[ITEM_PAGE], \
 			'lowestPrice':resSet[LOWEST_PRICE], 'reviewScore':None, \
-			'reviewLink':None, 'lastUpdated':resSet[LAST_UPDATED] }
+			'reviewLink':None, 'lastUpdated':resSet[LAST_UPDATED], 'platform':resSet[PLATFORM], 'releaseDate':resSet[RELEASE_DATE] }
 		return gameRec
 
 
@@ -261,6 +263,7 @@ class GameWebService:
 	
 		
 		return price
+
 
 	def _getLowestPrice( self, node ):
 		"""get the lowest available price from the item node passed in here."""

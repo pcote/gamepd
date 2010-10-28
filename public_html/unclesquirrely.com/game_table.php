@@ -18,6 +18,8 @@ for( $gameIndx = 0; $gameIndx < count( $gameList ); $gameIndx++ ){
 		$curCell = 0;
 		echo( "</tr>\n<tr>" );
 	}
+	
+
 	$game = $gameList[ $gameIndx ];
 	$asin = $game['asin'];
 	$title = $game['game_title'];
@@ -26,6 +28,7 @@ for( $gameIndx = 0; $gameIndx < count( $gameList ); $gameIndx++ ){
 	$detailPageLink = $game['item_page'];
 	$lowestPrice = $game['lowest_price'];
 	$releaseDate = $game[ 'release_date' ];
+
 
 	// hack for those cases where we have a regular list price but not a lowest.
 	if( $lowestPrice < 0 )
@@ -53,9 +56,15 @@ else{
 	echo( "<center><a href = '$detailPageLink'><img src = '$imageLink' /></a></center><br />" );
 }
 echo("</font>" );
-$price = number_format( $price, 2 );
+$printedListPrice = number_format( $price, 2 );
+if( $price > 0 ){
+	$printedListPrice = "\$$printedListPrice";
+}
+else{
+	$printedListPrice = "Uknown";
+}
 $lowestPrice = number_format( $lowestPrice, 2 );
-echo( "<center><font color = 'red'>list price \$$price</font></center>" );
+echo( "<center><font color = 'red'>list price $printedListPrice</font></center>" );
 echo( "<center><font color = 'red'>from \$$lowestPrice</font></center>" );
 if( $reviewScore != Null ){
 	echo( "<center><b>Review Score: <a href = '$reviewArticleLink'>$reviewScore</a></b></center>" );

@@ -1,3 +1,10 @@
+<script type = "text/javascript">
+	function loadNewVideo( platform, title ){
+		// TODO: stub needs implementing... badly.
+		alert( "stub.  PLATFORM: " + platform + " TITLE: " + title  );
+	}
+</script>
+
 <?php
 
 // TODO: This whole thing virtually screams "split me up".  I'll have to get to that.
@@ -54,7 +61,7 @@ $embeddedPlayerURL = "http://www.youtube.com/v/$videoID?enablejsapi=1&version=3&
 <head>
 <title>Game Video Window</title>
 </head>
-<body>
+<body onload = "loadNewVideo( '<?php echo( $platform ); ?>', '<?php echo( urlencode( $title ) ); ?>' )">
 
 <object width="425" height="344">
 <embed src="<?php echo( $embeddedPlayerURL ); ?>"
@@ -67,7 +74,7 @@ $embeddedPlayerURL = "http://www.youtube.com/v/$videoID?enablejsapi=1&version=3&
 </embed>
 </object>
 <br />
-<center><a href = "gamevidwin.php?platform='<?php echo( $platform );?>'&title='<?php echo( urlencode( $title ) ); ?>'"><font size = "2">bored now</font> <b>NEXT!</b></a></center>
+<center><a onclick = "loadNewVideo( '<?php echo( $platform ); ?>', '<?php echo( urlencode( $title ) ); ?>' )" href = "gamevidwin.php?platform='<?php echo( $platform );?>'&title='<?php echo( urlencode( $title ) ); ?>'"><font size = "2">bored now</font> <b>NEXT!</b></a></center>
 
 </body>
 

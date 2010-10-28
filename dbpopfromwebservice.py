@@ -200,6 +200,7 @@ def processReviews(  platform ):
 
 
 
+
 parser = OptionParser()
 dbVersion = "dev" # default to the locahost version
 parser.add_option( "-v" )
