@@ -53,7 +53,7 @@ REVIEW_ID = 0
 REVIEW_SCORE = 1
 ARTICLE_LINK = 2
 REVIEW_ASIN = 3
-
+REVIEW_CONTENT = 4
 
 
 
@@ -165,7 +165,7 @@ class GameDatabase:
 	
 		insertQuery = """insert into games(asin,game_title,price,last_updated,old_price, item_image, item_page, lowest_price, platform, release_date ) values( %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )"""
 		asin = game['asin']
-		title = game['gameTitle']
+		title = game['gameTitle'].encode( 'latin1', 'xmlcharrefreplace' )
 		price = game['price']
 		itemImage = game['itemImage']
 		itemPage = game['itemPage']
@@ -325,23 +325,35 @@ class GameWebService:
 		return gameList
 
 
-	def getSingleGame( self, asin ):
+	def getSingleGame( self, asin, platform=None ):
 		"""returns data on a single game. ( mainly used for debugging and testing special cases )"""
 
 		try:
-			node = self.api.item_lookup( asin, ResponseGroup="Small,ItemAttributes,Images" )
+			node = self.api.item_lookup( asin, ResponseGroup="Small,ItemAttributes,Offers,Images" )
 			item = node.Items.Item
+			
 			gameTitle = unicode( item.ItemAttributes.Title )
-			price = _getPrice( item )
+			price = self._getPrice( item )
 			lowestPrice = self._getLowestPrice( item )
 			itemPage = str( item.DetailPageURL )
-		
 			itemImage = "NoImage"
-				
 			if hasattr( item, "MediumImage" ):
 				itemImage = str( item.MediumImage.URL )
+			
+			if hasattr( item.ItemAttributes, "ReleaseDate" ):
+				releaseDate = str( item.ItemAttributes.ReleaseDate )
+				releaseDateArr = string.split( releaseDate, "-" )
+				yr = int(releaseDateArr[0])
+				mo = int(releaseDateArr[1])
+				dy = int(releaseDateArr[2])
+				releaseDate = datetime.datetime( yr, mo, dy, 0,0,0,0 ) 
+			else:
+				releaseDate = None
 		
-			gameRec = { "asin":asin, "gameTitle":gameTitle, "price":price, "itemPage":itemPage, "itemImage":itemImage, "lowestPrice":lowestPrice }
+			gameRec = { "asin":asin, "gameTitle":gameTitle, "price":price, "itemPage":itemPage, \
+					"itemImage":itemImage, "lowestPrice":lowestPrice, "platform":platform, "releaseDate":releaseDate }
+			if platform != None:
+				gameRec['platform'] = platform
 			return gameRec
 		except( AWSError ):
 			print( "failure to find the single game for asin " + asin )
@@ -428,12 +440,13 @@ class ReviewWebService:
 			title = content.getElementsByTagName( "content_title" )[0].firstChild.nodeValue
 			scoreNode = content.getElementsByTagName( "content_score" )[0].firstChild
 			linkBackNode = content.getElementsByTagName( "link_back_url" )[0].firstChild
-
+			reviewContent = content.getElementsByTagName( "content_body" )[0].firstChild.wholeText
 			# review ids and titles can be depeneded on.  page links and scores not always.
 			if scoreNode != None:
 				score = scoreNode.nodeValue
 				linkBackURL = linkBackNode.nodeValue
-				reviewList.append( { "review_id":reviewID, "game_title":title, "review_score":score, "link_back_url":linkBackURL } )
+				reviewList.append( { "review_id":reviewID, "game_title":title, "review_score":score, \
+						     "link_back_url":linkBackURL, "review_content":reviewContent } )
 
 		return reviewList
 
@@ -473,12 +486,14 @@ class ReviewDatabase:
 		review -- review dictionary object.  Should have originated from the gamepro api.
 		"""
 
-		query = "insert into game_reviews values( %s, %s, %s, %s )"
+		query = "insert into game_reviews values( %s, %s, %s, %s, %s )"
 		reviewID = str(review['review_id'])
 		reviewScore = str(review['review_score'])
 		articleLink = str(review['link_back_url'])
 		asin = game['asin']
-		self.csr.execute( query, ( reviewID, reviewScore, articleLink, asin ) )
+		content = review['review_content']
+		
+		self.csr.execute( query, ( reviewID, reviewScore, articleLink, asin, content ) )
 
 	def getReviews( self ):
 		resList = list()
@@ -488,7 +503,7 @@ class ReviewDatabase:
 		resSet = self.csr.fetchall()	
 		for res in resSet:
 			newListItem = { 'reviewID': res[REVIEW_ID], 'score': res[REVIEW_SCORE], \
-					'articleLink': res[ARTICLE_LINK], 'asin':res[REVIEW_ASIN] }
+					'articleLink': res[ARTICLE_LINK], 'asin':res[REVIEW_ASIN], 'reviewContent':res[REVIEW_CONTENT] }
 			resList.append( newListItem )
 
 		return resList

@@ -189,10 +189,10 @@ def processNonGameData( bNode ):
 
 
 def processReviews(  platform ):
-	ps3Reviews = revWS.getAllReviews( platform )
-	for review in ps3Reviews:
+	gameReviews = revWS.getAllReviews( platform )
+	for review in gameReviews:
 
-		game = gameDB.getGameByTitle( review[  'game_title'] )
+		game = gameDB.getGameByTitle( review[  'game_title' ] )
 		if not revDB.reviewExists( review ) and game != None:
 			revDB.addReview( game, review )
 			print( "\nreview added for %s" % ( review['game_title'] ) )
@@ -223,11 +223,13 @@ gameWS = GameWebService(configFileName, dbVersion)
 revDB = ReviewDatabase(configFileName, dbVersion)
 revWS = ReviewWebService(configFileName, dbVersion)
 
-# deal with the games and (unfortunately) the hardware that goes in with it.
 
+
+# deal with the games and (unfortunately) the hardware that goes in with it.
 updateFile.write( "SOFTWARE UPDATES...\n" )
 updateFile.write( "\nSoftware updates for the ps3...\n" )
 processSoftwareData( "ps3" )
+
 updateFile.write( "\nSoftware updates for the xbox 360...\n" )
 processSoftwareData( "xbox360" )
 updateFile.write( "\nSoftware updates for the wii...\n" )
@@ -245,6 +247,7 @@ processNonGameData( gameWS.WII_HARDWARE )
 # deal with the controllers ( controllers not platform specific as far as amazon's browse node hierarchy is concerned )
 updateFile.write( "\nGAME CONTROLLER UPDATES...\n" )
 processNonGameData( gameWS.GAME_CONTROLLERS )
+
 
 # TODO: Mystery bug causes the connection to die on prod unless reviews are run by themselves.  Look into it.
 updateFile.write( "\nREVIEW UPDATES...\n" )

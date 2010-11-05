@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /game_table.php
+Disallow: /gamevidwin.php
+Disallow: /read_database.php
+Disallow: /jquery.js
+Disallow: /page_count.php
+Disallow: thickbox.css
+Disallow: thickbox.js
+Disallow: /cgi-bin/
+Disallow: /css/
+Disallow: /image/

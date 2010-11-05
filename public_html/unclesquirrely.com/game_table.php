@@ -67,7 +67,10 @@ $lowestPrice = number_format( $lowestPrice, 2 );
 echo( "<center><font color = 'red'>list price $printedListPrice</font></center>" );
 echo( "<center><font color = 'red'>from \$$lowestPrice</font></center>" );
 if( $reviewScore != Null ){
-	echo( "<center><b>Review Score: <a href = '$reviewArticleLink'>$reviewScore</a></b></center>" );
+?>
+	<center><b>Review Score: <a class='thickbox' href = 'review_page.php?asin=<?php echo( $asin ); ?>'&keepThis=true&TB_iframe=true&height=300&width=500><?php echo( $reviewScore );?></a></b>
+<?php
+	
 }
 ?>
 

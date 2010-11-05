@@ -24,6 +24,7 @@ if( $platform == 'wii' ){
 	$maxPrice = 40;
 }
 
+// TODO: Clarification of rules for what's allowed on the pages needed here.
 $query = "select * " .
 "from games as g " .
 "left join game_reviews gr " .
@@ -31,7 +32,7 @@ $query = "select * " .
 "where price > 0 and price < $maxPrice " .
 "and lowest_price > 0 and lowest_price < price and platform = '$platform' " .
 "and release_date <= now() " .
-"union select * " .
+"union select * " . // union select is repeat of query above to grab the 4 or 5 edge cases where the list price is set to zero
 "from games as g " .
 "left join game_reviews gr " .
 "on g.asin = gr.asin " .
