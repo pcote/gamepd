@@ -58,6 +58,10 @@ def shouldAddGameToDatabase( game ):
 		titleString = game['gameTitle']
 		if titleString.find( '[Online Game Code' ) > 0:
 			return False
+
+		# games on the excluded list should not be added.
+		if gameDB.isExcluded( game['asin'] ):
+			return False
 			
 		return True
 			
@@ -248,14 +252,16 @@ processNonGameData( gameWS.WII_HARDWARE )
 updateFile.write( "\nGAME CONTROLLER UPDATES...\n" )
 processNonGameData( gameWS.GAME_CONTROLLERS )
 
+# remove the excluded records.
+gameDB.deleteExclusions()
 
 # TODO: Mystery bug causes the connection to die on prod unless reviews are run by themselves.  Look into it.
 updateFile.write( "\nREVIEW UPDATES...\n" )
 updateFile.write( "\nReview updates for the ps3\n" )
 processReviews( "ps3" )
-updateFile.write( "\nReview updates for the ps3\n" )
+updateFile.write( "\nReview updates for the xbox 360\n" )
 processReviews( "xbox360" )
-updateFile.write( "\nReview updates for the ps3\n" )
+updateFile.write( "\nReview updates for the wii\n" )
 processReviews( "wii" )
 failfile.close()
 updateFile.close()

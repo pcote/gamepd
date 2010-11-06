@@ -210,6 +210,21 @@ class GameDatabase:
 		query = "delete from games where asin = %s"
 		self.csr.execute( query, ( asin ) )
 
+	def isExcluded( self, asin ):
+		"""
+		Check to see if the given asin is on the list of excluded records.
+		"""
+		query = "select * from game_exclusions where asin = %s"
+		self.csr.execute( query, (asin ) )
+		results = self.csr.fetchone()
+		if results == None:
+			return False
+		return True
+
+	def deleteExclusions(self):
+		query = "delete from games where asin in ( select asin from game_exclusions )"
+		self.csr.execute( query )
+
 	def close(self):
 		"""
 		Closes the mysql connection for the game database.
@@ -473,6 +488,7 @@ class ReviewDatabase:
 
 		revID = str(review[ "review_id" ])
 		query = "select * from game_reviews where review_id = %s"
+		#pdb.set_trace() # DEBUG since this is the failpoint is the line below every time though it only happens with prod.
 		resSet = self.csr.execute( query, (revID ) )
 		if self.csr.fetchone() == None:
 			return False
