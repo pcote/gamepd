@@ -1,19 +1,29 @@
 <?php
-require( "../../../db_connect.php" );
+
 ?>
 <html>
 <head>
 <title>Game Removal Selector</title>
+<script type = "text/javascript" src="jquery.js"></script>
+
 <script type = "text/javascript">
 	function reviseGameList(){
-		platformForm = document.getElementById( "chosenPlatform" );
-		
+		chosenPlatform = document.getElementById( "chosenPlatform" ).value;
+		var reqURL = "game_list.php?platform=" + chosenPlatform;
+		$(document).ready(  function(){		
+			$('#gamediv').load( reqURL );
+		});
+	}
+
+	function excludeTitle( asinNum ){
+		divOb = document.getElementById( asinNum );
+		alert( "stub exclusion for asin: " + asinNum );
 	}
 </script>
 </head>
 <body>
 
-<form name="system_select" id="system_select" onchange="testScript()">
+<form name="system_select" id="system_select" onchange="reviseGameList()">
 	<select name = "chosenPlatform" id="chosenPlatform">
 		<option value = "" default>(please select)</option>
 		<option value = "wii">wii</option>
@@ -22,7 +32,9 @@ require( "../../../db_connect.php" );
 	</select>
 </form>
 <br />
-
+<br />
+<br />
+<div id='gamediv'></div>
 </body>
 </html>
 
