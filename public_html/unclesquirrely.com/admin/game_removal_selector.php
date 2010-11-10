@@ -1,6 +1,3 @@
-<?php
-
-?>
 <html>
 <head>
 <title>Game Removal Selector</title>
@@ -17,7 +14,6 @@
 
 	function excludeTitle( asinNum ){
 		divOb = document.getElementById( asinNum );
-		alert( "stub exclusion for asin: " + asinNum );
 	}
 </script>
 </head>
