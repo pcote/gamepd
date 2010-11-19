@@ -1,16 +1,16 @@
 <html>
 <head>
-<title>Uncle Squirrely's Games</title>
+<title>Uncle Squirrely - The Second Run Theatre of Video Games</title>
 <meta name="keywords" content= "games, video games, wii, Nintendo, Playstation 3, PS3, XBox 360, console games" >
+<link media="screen" rel="stylesheet" href="colorbox.css" />
+<script type = "text/javascript" src = "http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+<script type = "text/javascript" src = "jquery.colorbox.js"></script>
 
-
-
-
-<script type = "text/javascript" src = "jquery.js"></script>
-<script type = "text/javascript" src = "thickbox.js"></script>
-<link rel = "stylesheet href = "css/blemish/style.css" type = "text/css" />
-<link rel = "stylesheet" href="thickbox.css" type = "text/css" media = "screen" />
-
+<style type = "text/css">
+#side_image{background-image: url("image/Acorn.png");}
+a {text-decoration: underline;color: #EB1D1D;}
+a:hover {text-decoration: none;}
+</style>
 
 <script type="text/javascript">
 
@@ -30,10 +30,16 @@
 var rightKey = 39;
 var leftKey = 37;
 
+$(document).ready(
+	function(){
+		$( ".about" ).colorbox();
+		//$(".review" ).colorbox({height:300, width:500 });
+	}
+);
+
 function nextPage( pageDirection ){
 	var pageNum = (document.formCurrentState.hiddenPageNum.value) * 1;
 	var maxPage = (document.getElementById( "hiddenPageMax" ).value) * 1;
-
 	
 	var startRec = 0;
 	var endRec = 10;
@@ -54,7 +60,7 @@ function nextPage( pageDirection ){
 	}
 
 	// safety check to ensure you don't go off into zeros and negative land with the paging.
-	if( document.formCurrentState.hiddenPageNum.value == '0' ){
+	if( document.formCurrentState.hiddenPageNum.value == '0' ){https://mail.google.com/mail/?ui=2&shva=1#inbox
 		document.formCurrentState.hiddenPageNum.value = 1;
 		
 	}
@@ -81,7 +87,7 @@ function keyTest( evt ){
 			nextPage( 'next' );
 	else if( evt.which == leftKey )
 		nextPage( 'previous' );
-}
+}https://mail.google.com/mail/?ui=2&shva=1#inbox
 
 function getPageCount( platform ){
 	var pageCount = 1;
@@ -97,13 +103,12 @@ function getPageCount( platform ){
 
 function loadGameData( platform, order ){
 	
-	
 	if( platform != order )
 		document.formCurrentState.hiddenPageNum.value = 1;
 		
 	if( platform == 'current' )
 		platform = document.formCurrentState.hiddenPlatform.value;
-	if( order == 'current' )
+	if( order == 'current' )https://mail.google.com/mail/?ui=2&shva=1#inbox
 		order =  document.formCurrentState.hiddenOrder.value;
 
 	
@@ -129,16 +134,21 @@ function loadYoutubeVideo( gameTitle, linkID ){
 	$(document).ready(
 		function(){
 			ajaxResults = $.ajax( { url:reqURL, async:false} );
-			youtubeAddress = ajaxResults.responseText + "&TB_iframe=true&height=400&width=410";
+			// note: youtube frame should be height 400 width 410.  It's not seen here since the old setup was based on thickbox
+			// which we're no longer using.
+			youtubeAddress = ajaxResults.responseText;
 			linkElem.href= youtubeAddress;
 			window.location = youtubeAddress;
 		}
 	);
 
+	document.onkeydown=keyTest;
+
 
 }
 
 document.onkeydown=keyTest;
+
 </script>
 </head>
 
@@ -146,9 +156,13 @@ document.onkeydown=keyTest;
 <center>
 
 <table width="80%">
-<div id="title"><img src = "image/us_logo.png" /></div><br />
+<tr>
+<td width="10%">&nbsp;</td>
+<td align='center' width="80%"><div id="title"><img src = "image/us_logo.png" /></div></td>
+<td width="10%" align="right" valign="top"><a class="about" href = "about.html">About This Site</a></td>
+</tr>
 </table>
-
+<br />
 <table width="80%">
 <tr><td id="blank_id" align="center">
 <a href = "javascript:loadGameData( 'ps3', 'current' )">Playstation 3</a>&nbsp;&nbsp;&nbsp;
@@ -167,11 +181,11 @@ document.onkeydown=keyTest;
 <center>
 <table width="80%">
 <tr>
-<td align='right' width="5%">
+<td align='right' width="10%" id="side_image">
 <div id="leftArrow" style="visibility:hidden;"><a href = "javascript:nextPage(  'previous' )" onKeydown="keyTest"> &lt;&lt;</a>  &nbsp;&nbsp;</div>
 </td>
 <td align='center'><div id = "gametableid"></div></td>
-<td align='left' width="5%">
+<td align='left' width="10%" id="side_image">
 <div id="rightArrow"><a href = "javascript:nextPage( 'next' )"> &gt;&gt; </a></div>
 </td>
 </table>

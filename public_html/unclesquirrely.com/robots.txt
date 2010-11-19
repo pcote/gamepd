@@ -9,3 +9,4 @@ Disallow: thickbox.js
 Disallow: /cgi-bin/
 Disallow: /css/
 Disallow: /image/
+Disallow: /about.html

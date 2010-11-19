@@ -173,13 +173,15 @@ def processNonGameData( bNode ):
 	
 	hardwareList = gameWS.getHardware(  bNode, 1 )
 	storeNonGameData(  hardwareList )
-	
 	pageCount = gameWS.getHardwarePageCount( bNode )
 	curPage = 1 # NOTE: may need to be changed for debugging purposes so we don't have to wait as long to get to the "odd" data cases.
 	print( "\nfinished writing item page: " + unicode( curPage ) )
 	time.sleep(1)
-	print( "\n\ncollecting ps3 non game data: " + unicode( pageCount) + " pages" )
+	print( "\n\ncollecting non game data: " + unicode( pageCount) + " pages" )
 	
+	failCount = 0
+	failLimit = 5
+
 	while curPage < pageCount and curPage < gameWS.MAX_ALLOWABLE_PAGES:
 		try:
 			curPage = curPage + 1
@@ -187,10 +189,15 @@ def processNonGameData( bNode ):
 			storeNonGameData( hardwareList )
 			print( "\nfinished writing non game item page: " + str( curPage ) + " of " + str( pageCount ) )
 		except( NoExactMatchesFound ):
-			msg = "could not find an exact match for page " + str( curPage ) + " for VideoGames on browse node: " + bNode
+			msg = "could not find an exact match for page " + str( curPage ) + " for VideoGames on browse node: " + str( bNode )
 			print( msg )
 			updateFile.write( "\n" + msg )
-
+			failCount = failCount + 1
+			if failCount >= failLimit:
+				message = "no match limit reached for node: %s" % ( bNode )
+				updateFile.write( message )
+				print( message )
+				return
 
 def processReviews(  platform ):
 	gameReviews = revWS.getAllReviews( platform )
@@ -252,8 +259,7 @@ processNonGameData( gameWS.WII_HARDWARE )
 updateFile.write( "\nGAME CONTROLLER UPDATES...\n" )
 processNonGameData( gameWS.GAME_CONTROLLERS )
 
-# remove the excluded records.
-gameDB.deleteExclusions()
+
 
 # TODO: Mystery bug causes the connection to die on prod unless reviews are run by themselves.  Look into it.
 updateFile.write( "\nREVIEW UPDATES...\n" )

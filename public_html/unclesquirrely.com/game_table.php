@@ -1,10 +1,15 @@
 <?php require( "read_database.php" ); ?>
 
-<script type = "text/javascript" src = "jquery.js"></script>
-<script type = "text/javascript" src = "thickbox.js"></script>
-<link rel = "stylesheet" href="thickbox.css" type = "text/css" media = "screen" />
-
-<table border="1px" width="75%" cellspacing=20>
+<link media="screen" rel="stylesheet" href="colorbox.css" />
+<script type = "text/javascript" src = "jquery.colorbox.js"></script>
+<script type = "text/javascript">
+$(document).ready(
+	function(){
+		$(".review").colorbox( {height:300, width:500} );
+	}
+);
+</script>
+<table border="1px" width="100%" cellspacing=20>
 <tr>
 <?php
 
@@ -45,7 +50,7 @@ echo( "<center><b>$title</b></center>" );
 $order = $_GET['order'];
 
 if( $order == 'release' )
-	echo( "<center><small>Release Date:<br /> $releaseDate</small></center> <br />" );
+	echo( "<center><small>Release Date:<br /> $relehttp://localhost/index.htmaseDate</small></center> <br />" );
 else
 	echo( "<center><small>Last Known Price Update:<br /> $lastUpdate</small></center> <br />" );
 
@@ -68,13 +73,12 @@ echo( "<center><font color = 'red'>list price $printedListPrice</font></center>"
 echo( "<center><font color = 'red'>from \$$lowestPrice</font></center>" );
 if( $reviewScore != Null ){
 ?>
-	<center><b>Review Score: <a class='thickbox' href = 'review_page.php?asin=<?php echo( $asin ); ?>'&keepThis=true&TB_iframe=true&height=300&width=500><?php echo( $reviewScore );?></a></b>
+	<center><b>Review Score: <a class="review" href = 'review_page.php?asin=<?php echo( $asin ); ?>'><?php echo( $reviewScore );?></a></b>
 <?php
-	
 }
 ?>
 
-<center><a class = 'thickbox' href='gamevidwin.php?platform=<?php echo($platform);?>&title=<?php echo(urlencode($title));?>&KeepThis=true&TB_iframe=true&height=400&width=410'><font size="2">Chaos TV</font></a></center><br />
+<center><a href='gamevidwin.php?platform=<?php echo($platform);?>&title=<?php echo(urlencode($title));?>'><font size="2">Chaos TV</font></a></center><br />
 </td>
 <?php
 	$curCell = $curCell + 1;

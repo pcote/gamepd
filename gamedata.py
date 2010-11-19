@@ -225,6 +225,22 @@ class GameDatabase:
 		query = "delete from games where asin in ( select asin from game_exclusions )"
 		self.csr.execute( query )
 
+	def getExclusions( self ):
+		"""
+		Gets a simple list of excluded data recordss. (asin and reason)
+		"""
+		ASIN = 0
+		REASON = 1
+		query = "select * from game_exclusions"
+		self.csr.execute( query )
+		resSet = self.csr.fetchall()
+		exclusionList = list()
+		for res in resSet:
+			excludedItem = { 'asin': res[ ASIN ], 'reason': res[ REASON ] }
+			exclusionList.append( excludedItem )
+		return exclusionList
+
+
 	def close(self):
 		"""
 		Closes the mysql connection for the game database.
@@ -400,7 +416,8 @@ class GameWebService:
 
 		node = self.api.item_search( "VideoGames", BrowseNode=browseNodeId, ResponseGroup="Small", ItemPage=pageNum )
 		hardwareList = list()
-	
+		
+
 		for node in node.Items.Item:
 			try:
 				asin = unicode( node.ASIN )
@@ -410,8 +427,7 @@ class GameWebService:
 			except( UnicodeEncodeError ):
 				print( "Error while processing unicode in wsGetHardware" )
 			except( NoExactMatchesFound ):
-
-				print( "Error related to AWS in wsGetHardware" )
+				print( "wsGetHardware: Couldn't find a match for browse node: %s on page %s" % ( browseNodeId, pageNum ) )
 	
 		return hardwareList
 

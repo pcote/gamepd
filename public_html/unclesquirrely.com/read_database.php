@@ -30,7 +30,7 @@ $query = "select * " .
 "left join game_reviews gr " .
 "on g.asin = gr.asin " .
 "where price > 0 and price < $maxPrice " .
-"and lowest_price > 0 and lowest_price < price and platform = '$platform' " .
+"and lowest_price > 0 and lowest_price <= price and platform = '$platform' " .
 "and release_date <= now() " .
 "union select * " . // union select is repeat of query above to grab the 4 or 5 edge cases where the list price is set to zero
 "from games as g " .
