@@ -1,14 +1,5 @@
 <?php require( "read_database.php" ); ?>
 
-<link media="screen" rel="stylesheet" href="colorbox.css" />
-<script type = "text/javascript" src = "jquery.colorbox.js"></script>
-<script type = "text/javascript">
-$(document).ready(
-	function(){
-		$(".review").colorbox( {height:300, width:500} );
-	}
-);
-</script>
 <table border="1px" width="100%" cellspacing=20>
 <tr>
 <?php
@@ -47,10 +38,14 @@ for( $gameIndx = 0; $gameIndx < count( $gameList ); $gameIndx++ ){
 <?php
 echo( "<font color = '#444444'>" );
 echo( "<center><b>$title</b></center>" );
-$order = $_GET['order'];
+$order = "last_updated";
+if( isset( $_POST['order' ] ) )
+{
+	$order = $_POST['order'];
+}
 
 if( $order == 'release' )
-	echo( "<center><small>Release Date:<br /> $relehttp://localhost/index.htmaseDate</small></center> <br />" );
+	echo( "<center><small>Release Date:<br /> $releaseDate</small></center> <br />" );
 else
 	echo( "<center><small>Last Known Price Update:<br /> $lastUpdate</small></center> <br />" );
 

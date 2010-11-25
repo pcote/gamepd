@@ -2,21 +2,21 @@
 <?php
 require( "../../db_connect.php" );
 
-// setting default platform and ordering.
-$platform = $_GET['platform'];
-$pageNum = $_GET['pagenum'];
+// defaults.
+$platform = "wii";
+$orderType = "last_updated";
+$pageNum = 1;
 
-
-if( $platform == Null ){
-	$platform = "ps3";
+if( isset( $_POST['platform'] ) ){
+	$platform = $_POST['platform'];
 }
 
-// order setup
-if( $_GET['order'] != Null ){
-	$orderType = $_GET['order'];
+if( isset( $_POST['order'] ) ){
+	$orderType = $_POST['order'];
 }
-else{
-	$orderType = 'last_updated';
+
+if( isset( $_POST['pagenum'] ) ){
+	$pageNum = $_POST['pagenum'];
 }
 
 $maxPrice = 50;
