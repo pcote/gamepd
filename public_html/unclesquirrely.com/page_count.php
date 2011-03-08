@@ -2,14 +2,14 @@
 require( "../../db_connect.php" );
 
 // generate a page count based on platform.
-$platform = $_POST['platform'];
+$platform = $_GET['platform'];
 if( $platform == null ){
 	$platform = "ps3";
 }
 
 $platform = "wii";
-if( isset( $_POST['platform'] ) ){
-	$platform = $_POST['platform'];
+if( isset( $_GET['platform'] ) ){
+	$platform = $_GET['platform'];
 }
 
 //db connection

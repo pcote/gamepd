@@ -54,9 +54,9 @@ def shouldAddGameToDatabase( game ):
 		if len( dbRec ) > 0:
 			return False
 		
-		# online game codes not allowed.  physical titles only
+		# online game codes and game downloads not allowed.  physical titles only
 		titleString = game['gameTitle']
-		if titleString.find( '[Online Game Code' ) > 0:
+		if titleString.find( '[Online Game Code' ) > 0 or titleString.find( '[Game Download]' ):
 			return False
 
 		# games on the excluded list should not be added.
@@ -273,3 +273,4 @@ failfile.close()
 updateFile.close()
 gameDB.close()
 revDB.close()
+

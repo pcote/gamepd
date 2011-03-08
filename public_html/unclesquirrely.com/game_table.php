@@ -1,5 +1,15 @@
 <?php require( "read_database.php" ); ?>
 
+<link media="screen" rel="stylesheet" href="colorbox.css" />
+
+<script type = "text/javascript" src = "jquery.colorbox.js"></script>
+<script type = "text/javascript">
+$(document).ready(
+	function(){
+		$(".chaostv").colorbox( {iframe:true, innerWidth:450, innerHeight:425} );
+	}
+);
+</script>
 <table border="1px" width="100%" cellspacing=20>
 <tr>
 <?php
@@ -50,10 +60,10 @@ else
 	echo( "<center><small>Last Known Price Update:<br /> $lastUpdate</small></center> <br />" );
 
 if( $imageLink == "NoImage" ){
-	echo( "<center><a href = '$detailPageLink'><img src='image/no_image.jpg' /></a></center><br />" );
+	echo( "<center><img src='image/no_image.jpg' /></center><br />" );
 }
 else{
-	echo( "<center><a href = '$detailPageLink'><img src = '$imageLink' /></a></center><br />" );
+	echo( "<center><img src = '$imageLink' /></center><br />" );
 }
 echo("</font>" );
 $printedListPrice = number_format( $price, 2 );
@@ -72,14 +82,11 @@ if( $reviewScore != Null ){
 <?php
 }
 ?>
-
-<center><a href='gamevidwin.php?platform=<?php echo($platform);?>&title=<?php echo(urlencode($title));?>'><font size="2">Chaos TV</font></a></center><br />
+<center><a href = "<?php echo( $detailPageLink )?>">Buy Today!</a></center>
+<center><a class="chaostv" href='gamevidwin.php?platform=<?php echo($platform);?>&title=<?php echo(urlencode($title));?>'><font size="2">Watch on Chaos TV</font></a></center><br />
 </td>
 <?php
 	$curCell = $curCell + 1;
 }
 ?>
 </table>
-
-
-

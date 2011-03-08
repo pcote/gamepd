@@ -66,7 +66,6 @@ $videoIDs = substr( $commaString, 0, strlen( $commaString ) - 1 );
         margin-left: 3px;
       }
     </style>
-    <script src = "jquery.js" type = "text/javascript"></script>
     <script src="http://www.google.com/jsapi" type="text/javascript"></script>
     <script type="text/javascript">
       google.load("swfobject", "2.1");
@@ -80,6 +79,7 @@ $videoIDs = substr( $commaString, 0, strlen( $commaString ) - 1 );
       function updateHTML(elmId, value) {
         document.getElementById(elmId).innerHTML = value;
       }
+
       function getRandomVideo(){
 	var optionList = document.frmVidChoices.hiddenVideoIds.value;
 	optionArray = optionList.split( "," );
@@ -87,10 +87,9 @@ $videoIDs = substr( $commaString, 0, strlen( $commaString ) - 1 );
 	videoID = optionArray[ randomIndex ];
 	return videoID;
       }
+
       // Loads the selected video into the player.
       function loadVideo() {
-        //var selectBox = document.getElementById("videoSelection");
-        //var videoID = selectBox.options[selectBox.selectedIndex].value
 	var optionList = document.frmVidChoices.hiddenVideoIds.value;
 	optionArray = optionList.split( "," );
 	var randomIndex = Math.floor( Math.random()*optionArray.length );
@@ -126,12 +125,14 @@ $videoIDs = substr( $commaString, 0, strlen( $commaString ) - 1 );
         swfobject.embedSWF("http://www.youtube.com/v/" + videoID +
                            "&enablejsapi=1&playerapiid=player1",
                            "videoDiv", "425", "344", "8", null, null, params, atts);
-	
       }
+
       function _run() {
         loadPlayer();
       }
+
       google.setOnLoadCallback(_run);
+
     </script>
   </head>
   <body style="font-family: Arial;border: 0 none;" onload="loadVideo();">
