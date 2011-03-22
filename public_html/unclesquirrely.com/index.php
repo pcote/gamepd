@@ -119,14 +119,14 @@ $(document).ready( function(){
 	$("#latestDropNav").click( loadPage( changeOrder, "last_updated" ) );
 	$("#cheapestNav").click( loadPage( changeOrder, "cheap" ) );
 	$("#alphabetizeNav").click( loadPage( changeOrder, "alpha" ) );
-	$("#newestNav").click( loadPage( changeOrder, "last_updated" ) );
+	$("#newestNav").click( loadPage( changeOrder, "release" ) );
 
 	$("#nextNav").click( loadPage( changePage, "next" ) );
 	$("#previousNav").click( loadPage( changePage, "previous" ) );
 	$( "#previousNav" ).hide(); // we're on page 1 at the start so know need to have a go backwards option.
 	$(this).keydown( arrowNav );
 	$(".about").colorbox( { width:"50%", height:"50%", iframe:true} );
-	
+	$(".chaostv").colorbox( {iframe:true, innerWidth:450, innerHeight:425} );
 });
 
 

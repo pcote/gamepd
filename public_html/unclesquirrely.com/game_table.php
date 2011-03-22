@@ -1,15 +1,11 @@
-<?php require( "read_database.php" ); ?>
+<?php 
+require( "read_database.php" );
+ ?>
 
 <link media="screen" rel="stylesheet" href="colorbox.css" />
 
 <script type = "text/javascript" src = "jquery.colorbox.js"></script>
-<script type = "text/javascript">
-$(document).ready(
-	function(){
-		$(".chaostv").colorbox( {iframe:true, innerWidth:450, innerHeight:425} );
-	}
-);
-</script>
+
 <table border="1px" width="100%" cellspacing=20>
 <tr>
 <?php

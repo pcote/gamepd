@@ -135,7 +135,7 @@ $videoIDs = substr( $commaString, 0, strlen( $commaString ) - 1 );
 
     </script>
   </head>
-  <body style="font-family: Arial;border: 0 none;" onload="loadVideo();">
+  <body style="font-family: Arial;border: 0 none;">
     <table>
     <tr></tr>
     <tr><td>
