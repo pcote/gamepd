@@ -2,9 +2,7 @@
 require( "read_database.php" );
  ?>
 
-<link media="screen" rel="stylesheet" href="colorbox.css" />
 
-<script type = "text/javascript" src = "jquery.colorbox.js"></script>
 
 <table border="1px" width="100%" cellspacing=20>
 <tr>
@@ -56,7 +54,7 @@ else
 	echo( "<center><small>Last Known Price Update:<br /> $lastUpdate</small></center> <br />" );
 
 if( $imageLink == "NoImage" ){
-	echo( "<center><img src='image/no_image.jpg' /></center><br />" );
+	echo( "<center><img src='images/no_image.jpg' /></center><br />" );
 }
 else{
 	echo( "<center><img src = '$imageLink' /></center><br />" );
@@ -79,7 +77,7 @@ if( $reviewScore != Null ){
 }
 ?>
 <center><a href = "<?php echo( $detailPageLink )?>">Buy Today!</a></center>
-<center><a class="chaostv" href='gamevidwin.php?platform=<?php echo($platform);?>&title=<?php echo(urlencode($title));?>'><font size="2">Watch on Chaos TV</font></a></center><br />
+<center><a id="chaostv" href='gamevidwin.php?platform=<?php echo($platform);?>&title=<?php echo(urlencode($title));?>'><font size="2">Watch on Chaos TV</font></a></center><br />
 </td>
 <?php
 	$curCell = $curCell + 1;

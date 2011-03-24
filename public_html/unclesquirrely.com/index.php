@@ -3,12 +3,11 @@
 <head>
 <title>Uncle Squirrely - The Second Run Theatre of Video Games</title>
 <meta name="keywords" content= "cheap games, video games, wii, Nintendo, Playstation 3, PS3, XBox 360, console games" >
-<link media="screen" rel="stylesheet" href="colorbox.css" />
-<script type = "text/javascript" src = "jquery-1.5.min.js"></script>
-<script type = "text/javascript" src = "jquery.colorbox.js"></script>
-
+<script type = "text/javascript" src = "../colorbox/colorbox/jquery-1.5.min.js"></script>
+<script type = "text/javascript" src = "../colorbox/colorbox/jquery.colorbox-min.js"</script>
+<link rel = "stylesheet" type = "text/css" href = "colorbox.css"></style>
 <style type = "text/css">
-#side_image{background-image: url("image/Acorn.png");}
+#side_image{background-image: url("images/Acorn.png");}
 a {text-decoration: underline;color: #EB1D1D;}
 a:hover {text-decoration: none;}
 </style>
@@ -101,7 +100,10 @@ arrowNav = function( event ){
 	else if( event.which == LEFT_ARROW )
 		loadPage( changePage, "previous" )();
 }
-// it doesn't do anything.  loadPage returns a function.  click takes a function as an argument.  Weird.
+
+
+
+
 $(document).ready( function(){
 	//default form variable setup.
 	$("#platform").val("wii");
@@ -125,9 +127,12 @@ $(document).ready( function(){
 	$("#previousNav").click( loadPage( changePage, "previous" ) );
 	$( "#previousNav" ).hide(); // we're on page 1 at the start so know need to have a go backwards option.
 	$(this).keydown( arrowNav );
-	$(".about").colorbox( { width:"50%", height:"50%", iframe:true} );
-	$(".chaostv").colorbox( {iframe:true, innerWidth:450, innerHeight:425} );
+
+	// lightbox setups.
+	$("#aboutNav").colorbox( { height:500, width:500 } );
+	
 });
+
 
 
 
@@ -140,8 +145,8 @@ $(document).ready( function(){
 <table width="80%">
 <tr>
 <td width="10%">&nbsp;</td>
-<td align='center' width="80%"><div id="title"><img src = "image/us_logo.png" /></div></td>
-<td width="10%" align="right" valign="top"><a class="about" id="navAbout" href = "about.html">About This Site</a></td>
+<td align='center' width="80%"><div id="title"><img src = "images/us_logo.png" /></div></td>
+<td width="10%" align="right" valign="top"><a id="aboutNav" href = "about.html">About This Site</a></td>
 </tr>
 </table>
 <br />
