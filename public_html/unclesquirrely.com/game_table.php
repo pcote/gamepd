@@ -77,7 +77,7 @@ if( $reviewScore != Null ){
 }
 ?>
 <center><a href = "<?php echo( $detailPageLink )?>">Buy Today!</a></center>
-<center><a id="chaostv" href='gamevidwin.php?platform=<?php echo($platform);?>&title=<?php echo(urlencode($title));?>'><font size="2">Watch on Chaos TV</font></a></center><br />
+<center><a class="chaostv" href='gamevidwin.php?platform=<?php echo($platform);?>&title=<?php echo(urlencode($title));?>'><font size="2">Watch on Chaos TV</font></a></center><br />
 </td>
 <?php
 	$curCell = $curCell + 1;

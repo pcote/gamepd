@@ -3,8 +3,10 @@
 <head>
 <title>Uncle Squirrely - The Second Run Theatre of Video Games</title>
 <meta name="keywords" content= "cheap games, video games, wii, Nintendo, Playstation 3, PS3, XBox 360, console games" >
+
 <script type = "text/javascript" src = "../colorbox/colorbox/jquery-1.5.min.js"></script>
 <script type = "text/javascript" src = "../colorbox/colorbox/jquery.colorbox-min.js"</script>
+
 <link rel = "stylesheet" type = "text/css" href = "colorbox.css"></style>
 <style type = "text/css">
 #side_image{background-image: url("images/Acorn.png");}
@@ -87,7 +89,9 @@ var loadPage = function( changeAction, changeArg ){
 		var platform = $("#platform").val();
 		var pagenum = $("#pagenum").val();
 		var loadURL = "game_table.php?platform="+platform+"&pagenum="+pagenum+"&order="+order;
-		$("#gametableid" ).load( loadURL );
+		$("#gametableid" ).load( loadURL, function(){
+			$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );			
+		} );
 	}
 }
 
@@ -112,7 +116,9 @@ $(document).ready( function(){
 	setPageMax( "wii" ); // TODO: tech debt.  not a very "functional" way to set the pagemax variable.
 
 	var loadURL = "game_table.php?platform=wii&pagenum=1&order=last_updated";
-	$("#gametableid").load( loadURL );
+	$("#gametableid").load( loadURL, function(){
+		$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );
+	} );
 
 	// setup the page update callbacks
 	$("#ps3Nav").click( loadPage( changePlatform, "ps3" ) );
@@ -130,7 +136,7 @@ $(document).ready( function(){
 
 	// lightbox setups.
 	$("#aboutNav").colorbox( { height:500, width:500 } );
-	
+
 });
 
 
@@ -180,7 +186,7 @@ $(document).ready( function(){
 </center>
 
 <form name = "formCurrentState" method="post">
-	<input type = "hidden"  name = "" id="platform"  />
+	<input type = "hidden"  name = "platform" id="platform"  />
 	<input type = "hidden"  name = "order"  id="order"  />
 	<input type = "hidden" name = "pagenum" id="pagenum" />
 	<input type = "hidden" name = "pagemax" id="pagemax" />
