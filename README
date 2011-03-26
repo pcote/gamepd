@@ -1,0 +1,10 @@
+gamepd is the name of a project that eventually came to be named Uncle Squirrely. In effect, it's an experimental videogame store.  Here are the features.
+
+Front End 
+* Has an title order setup based on latest price drops, cheapest games, alphabeticaloOrder, newest release date.
+* Game review information based on information from gamepro.
+* Chaos TV, which streams random youtube videos about a particular title when you click on the link.
+
+Back End
+* Has Python scripts that reads data from the Amazon Product Advertising API, judges the data based on whether or not it fits the criteria for a good game deal, and does updates to the database where appropriate. 
+* Admin utilities for removing unecessary titles. 
