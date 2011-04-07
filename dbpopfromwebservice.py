@@ -89,6 +89,24 @@ def shouldUpdateListPrice( game ):
 		return True
 	return False
 
+class RecoverExceptions:
+	def __init__(self, numberAttempts ):
+		self.numberAttempts = numberAttempts
+
+	def __call__(self, f ):
+		def wrapperfunc(*args):
+			try:
+				self.res = f(*args)
+				
+			except( IntegrityError ):
+				print( "integrity error: " )
+				updateFile.write( "\nasin number: %s causes an integrity violation and will not be added to the game table" )
+			except( UnicodeEncodeError ):
+				updateFile.write( "\nasin number: %s fails due to unicode encoding problem" )
+			
+			return self.res	
+		return wrapperfunc		
+
 # Take a raw list of games (typically 10) and store them in the database.
 # NOTE: At this pass, non games can end up in here.  ( controllers, consoles, ect )
 # Removal of those is taken care of on a separate pass.
@@ -101,28 +119,21 @@ def storeGameData( wsGameList ):
 	errorCount = 0
 
 	#breakdown the web service game list to addable and updatable parts
+	@RecoverExceptions(3)
 	def breakdownList( gameList ):
 		games2Add = list()
 		games2Update = list()
-		try:
 
-			for game in gameList:
-				if shouldAddGameToDatabase( game ):
-					games2Add.append( game )
-				elif shouldUpdateListPrice( game ):
-					games2Update.append( game )			
+		for game in gameList:
+			if shouldAddGameToDatabase( game ):
+				games2Add.append( game )
+			elif shouldUpdateListPrice( game ):
+				games2Update.append( game )			
 				
-		except( IntegrityError ):
-			errorCount = errorCount + 1
-			print( "integrity errors: " + str( errorCount ) )
-			updateFile.write( "\nasin number: %s causes an integrity violation and will not be added to the game table" % (asin) )
-		except( UnicodeEncodeError ):
-			updateFile.write( "\nasin number: %s fails due to unicode encoding problem" %(asin) )
 
 	
 		return games2Add, games2Update
 
-		
 	gamesToAdd, gamesToUpdate = breakdownList( wsGameList )
 	
 	for game in gamesToAdd:
