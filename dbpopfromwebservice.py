@@ -99,35 +99,45 @@ def storeGameData( wsGameList ):
 	price=0
 	gameTitle=""
 	errorCount = 0
-	
-	for wsGame in wsGameList:
+
+	#breakdown the web service game list to addable and updatable parts
+	def breakdownList( gameList ):
+		games2Add = list()
+		games2Update = list()
 		try:
-			asin = wsGame['asin']
-			gameTitle = wsGame['gameTitle']
-			price = wsGame['price']
-			#print( "DEBUG: asin: " + asin + " title: " + gameTitle ) # keep for collecting samples to debug by			
-			if shouldAddGameToDatabase( wsGame ):
-				gameDB.addGame( wsGame )
-				addMessage = "\nadded asin: " + asin + " title: " + gameTitle
-				print( addMessage ) # keep for collecting samples to debug by
-				updateFile.write( addMessage )
-			elif shouldUpdateListPrice( wsGame ):
-				gameDB.updatePrice( wsGame )
-				updateMessage = "\nupdated asin: " + asin + " title: " + gameTitle + "\n"
-				print( "updated asin: " + asin + " title: " + gameTitle ) # keep for collecting samples to debug by
-				updateFile.write( updateMessage )
 
-			gameDB.refreshLowestPrice( wsGame )
-
-			
+			for game in gameList:
+				if shouldAddGameToDatabase( game ):
+					games2Add.append( game )
+				elif shouldUpdateListPrice( game ):
+					games2Update.append( game )			
+				
 		except( IntegrityError ):
 			errorCount = errorCount + 1
 			print( "integrity errors: " + str( errorCount ) )
 			updateFile.write( "\nasin number: %s causes an integrity violation and will not be added to the game table" % (asin) )
 		except( UnicodeEncodeError ):
 			updateFile.write( "\nasin number: %s fails due to unicode encoding problem" %(asin) )
-			
-			
+
+	
+		return games2Add, games2Update
+
+		
+	gamesToAdd, gamesToUpdate = breakdownList( wsGameList )
+	
+	for game in gamesToAdd:
+		gameDB.addGame( game )
+		addMessage = "\nadded asin: " + game['asin'] + " title: " + game['gameTitle']
+		print( addMessage ) # keep for collecting samples to debug by
+		updateFile.write( addMessage )
+
+	for game in gamesToUpdate:
+		gameDB.updatePrice( game )
+		updateMessage = "\nupdated asin: " + game['asin'] + " title: " + game['gameTitle'] + "\n"
+		print( "updated asin: " + asin + " title: " + gameTitle ) # keep for collecting samples to debug by
+		updateFile.write( updateMessage )
+
+
 
 # Stores non game data into it's own table in mysql.  
 # Data stored sets will come from either hardware or controller categories in amazon.
