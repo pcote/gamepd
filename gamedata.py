@@ -446,16 +446,20 @@ class GameWebService:
 
 # TODO: Config file args need to be passed into all class constructors.
 class ReviewWebService:
+
+	
 	def __init__(self, configFileName, dbVer ):
 		# note: technically, you don't need the configFileName argument.  there really isn't anything special about the args here.
 		# it's just here to be consistant with all the other classes.
-		pass
-
+		cp = ConfigParser.SafeConfigParser()
+		cp.read( configFileName )
+		self.gameprokey=cp.get( dbVer, "gameprokey" )
+			
 	def getAllReviews( self, platform ):
 		"""Pulls review information for all games for a given platform."""
 
 		baseURL = "http://api.gamepro.com/svc/content/get"
-		argList = "platform=" + platform + "&genre=all&article_type=reviews&esrb=all&return_type=xml&max=1000&page=1&apiKey=bedcf4d7-bd2d-42fd-81054625b698ada5"
+		argList = "platform=" + platform + "&genre=all&article_type=reviews&esrb=all&return_type=xml&max=1000&page=1&apiKey=" + self.gameprokey
 		url = baseURL + "?" + argList
 		sock = urllib.urlopen( url )
 		rawData =  sock.read()
@@ -473,7 +477,7 @@ class ReviewWebService:
 			linkBackNode = content.getElementsByTagName( "link_back_url" )[0].firstChild
 			reviewContent = content.getElementsByTagName( "content_body" )[0].firstChild.wholeText
 			# review ids and titles can be depeneded on.  page links and scores not always.
-			if scoreNode != None:
+			if scoreNode:
 				score = scoreNode.nodeValue
 				linkBackURL = linkBackNode.nodeValue
 				reviewList.append( { "review_id":reviewID, "game_title":title, "review_score":score, \
