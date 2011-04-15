@@ -143,14 +143,12 @@ def storeGameData( wsGameList ):
 	gamesToAdd, gamesToUpdate = breakdownList( wsGameList )
 	
 	for game in gamesToAdd:
-		pdb.set_trace()
 		gameDB.addGame( game )
 		addMessage = "\nadded asin: " + game['asin'] + " title: " + game['gameTitle']
 		print( addMessage ) # keep for collecting samples to debug by
 		updateFile.write( addMessage )
 
 	for game in gamesToUpdate:
-		pdb.set_trace()
 		gameDB.updatePrice( game )
 		updateMessage = "\nupdated asin: " + game['asin'] + " title: " + game['gameTitle'] + "\n"
 		print( updateMessage ) 

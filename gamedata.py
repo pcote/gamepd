@@ -20,6 +20,7 @@ import MySQLdb
 import time
 import datetime
 import pdb
+from pdb import set_trace
 import decimal
 import urllib
 import string
@@ -56,9 +57,44 @@ REVIEW_ASIN = 3
 REVIEW_CONTENT = 4
 
 
+class WebServiceRecovery(object):
+	"""Makes a few extra attempts to recover gracefully from an error before failing.
+	"""
+		
+	def __call__(self, fun, *args ):
+
+		"""Wrapper for web service related exceptions
+		"""
+		def newfun( *args ):
+			attemptsLimit = 5
+			attempts = 0
+			succeeded = False
+			errorType = ""
+
+			while not succeeded and attempts < attemptsLimit:
+				if attempts > 0:
+					print( "failure due to %s. Making attempt number: %d" % (errorType, attempts) )
+				try:
+					res = fun( *args )
+					succeeded = True
+					return res
+				except AWSError:
+					errorType = "AWSError"
+					attempts = attempts + 1	
+				except NoExactMatchesFound:
+					attempts = attempts + 1	
+					errorType = "NoExactMatchesFound"
+				except IOError:
+					errorType = "IOError"
+					attempts = attempts + 1	
+
+		
+			raise Exception( "PROBLEM: %s" % errorType )
+
+		return newfun 
 
 class GameDatabase:
-
+	"""Manages game software or hardware data that has to go in, or, or be updated in the database"""
 
 	def __init__(self, configFileName, dbVer ):
 
@@ -148,7 +184,6 @@ class GameDatabase:
 
 	def getGameByTitle( self, titleArg ):
 		""" Pulls a game based on it's title.
-
 		TODO: This could be a problem for games that happen to be on multiple platforms."""
 
 		query = "select * from games where game_title = %s"
@@ -186,11 +221,8 @@ class GameDatabase:
 		self.csr.execute( updateQuery, ( newPrice, oldPrice, ts, asin ) )
 
 	def addHardware( self, hwItem ):
-		"""Adds a piece of hardware to the database.
+		"""Adds a piece of hardware to the database."""
 
-		NOTE: Adding hardware to the hardware data will set off a database trigger
-		that deletes any corresponding hardware records that might have made it into the 
-		games table."""
 
 		query = """insert into game_hardware values( %s, %s )"""
 		self.csr.execute( query, ( hwItem['asin'], hwItem['item_name'] ) )
@@ -207,6 +239,7 @@ class GameDatabase:
 
 
 	def removeGame( self, asin ):
+		"""Deletes a game according to it's Amazon asin number"""
 		query = "delete from games where asin = %s"
 		self.csr.execute( query, ( asin ) )
 
@@ -222,6 +255,7 @@ class GameDatabase:
 		return True
 
 	def deleteExclusions(self):
+		"""Deletes anything in the list of software games that have been marked as an exclusion"""
 		query = "delete from games where asin in ( select asin from game_exclusions )"
 		self.csr.execute( query )
 
@@ -252,7 +286,7 @@ class GameDatabase:
 
 
 class GameWebService:
-
+	"""Reads data from Amazon web Services pertaining to games, hardware, or game controllers"""
 	def __init__(self, configFileName, dbVer ):
 		cp = ConfigParser.SafeConfigParser()
 		cp.read( configFileName )
@@ -262,14 +296,10 @@ class GameWebService:
 		SECRET_KEY = cp.get( dbVer, "secret_key" )
 		self.api = API(AWS_KEY, SECRET_KEY, 'us') 
 
-		# browse node ids
+		# important browse node ids
 		self.PS3_HARDWARE = 14210671
 		self.XBOX360_HARDWARE = 696756
 		self.WII_HARDWARE = 14218821
-		"""
-		Utility used to turn a database result set into a list of 
-		dictionary objects.  Mainly used internally to this library.
-		"""
 		self.XBOX360_GAMES = 14220271
 		self.PS3_GAMES = 14210861
 		self.WII_GAMES = 14219011
@@ -306,8 +336,7 @@ class GameWebService:
 				price = price / 100.0
 		return price
 
-
-
+	@WebServiceRecovery()
 	def getGames( self, platform, pageNum ):
 		"""pull games based on the platform. 
 		 TODO: Make the platform parameter matter.  For right now, it's just ignoring it and
@@ -322,57 +351,21 @@ class GameWebService:
 	
 		gameList = list()
 	
-		try:
-			node = self.api.item_search( "VideoGames", BrowseNode=bNode, ResponseGroup="Small,ItemAttributes,Offers,Images", ItemPage=pageNum )
+		node = self.api.item_search( "VideoGames", BrowseNode=bNode, ResponseGroup="Small,ItemAttributes,Offers,Images", ItemPage=pageNum )
 		
-			for node in node.Items.Item:
-				asin = unicode(node.ASIN)
-				gameTitle = unicode(node.ItemAttributes.Title)
-				price = self._getPrice(node)
-				lowestPrice = self._getLowestPrice( node )
-				itemPage = str( node.DetailPageURL )
-				itemImage = "NoImage"
-				releaseDate = "Date Unknown"			
-				if hasattr( node, "MediumImage" ):
-					itemImage = str( node.MediumImage.URL )
-
-				if hasattr( node.ItemAttributes, "ReleaseDate" ):
-					releaseDate = str( node.ItemAttributes.ReleaseDate )
-					releaseDateArr = string.split( releaseDate, "-" )
-					yr = int(releaseDateArr[0])
-					mo = int(releaseDateArr[1])
-					dy = int(releaseDateArr[2])
-					releaseDate = datetime.datetime( yr, mo, dy, 0,0,0,0 ) 
-				else:
-					releaseDate = None
-			
-				gameRec = { "asin":asin, "gameTitle":gameTitle, "price":price, "itemPage":itemPage, \
-					"itemImage":itemImage, "lowestPrice":lowestPrice, "platform":platform, "releaseDate":releaseDate }
-				gameList.append( gameRec )
-		except( NoExactMatchesFound ):
-			print( "api error (No excact matches found )in wsGetGames while searching VideoGames page num: " + str( pageNum ) )
-			return gameList # list should be only partial and possibly empty.
-	
-		return gameList
-
-
-	def getSingleGame( self, asin, platform=None ):
-		"""returns data on a single game. ( mainly used for debugging and testing special cases )"""
-
-		try:
-			node = self.api.item_lookup( asin, ResponseGroup="Small,ItemAttributes,Offers,Images" )
-			item = node.Items.Item
-			
-			gameTitle = unicode( item.ItemAttributes.Title )
-			price = self._getPrice( item )
-			lowestPrice = self._getLowestPrice( item )
-			itemPage = str( item.DetailPageURL )
+		for node in node.Items.Item:
+			asin = unicode(node.ASIN)
+			gameTitle = unicode(node.ItemAttributes.Title)
+			price = self._getPrice(node)
+			lowestPrice = self._getLowestPrice( node )
+			itemPage = str( node.DetailPageURL )
 			itemImage = "NoImage"
-			if hasattr( item, "MediumImage" ):
-				itemImage = str( item.MediumImage.URL )
-			
-			if hasattr( item.ItemAttributes, "ReleaseDate" ):
-				releaseDate = str( item.ItemAttributes.ReleaseDate )
+			releaseDate = "Date Unknown"			
+			if hasattr( node, "MediumImage" ):
+				itemImage = str( node.MediumImage.URL )
+
+			if hasattr( node.ItemAttributes, "ReleaseDate" ):
+				releaseDate = str( node.ItemAttributes.ReleaseDate )
 				releaseDateArr = string.split( releaseDate, "-" )
 				yr = int(releaseDateArr[0])
 				mo = int(releaseDateArr[1])
@@ -382,16 +375,44 @@ class GameWebService:
 				releaseDate = None
 		
 			gameRec = { "asin":asin, "gameTitle":gameTitle, "price":price, "itemPage":itemPage, \
-					"itemImage":itemImage, "lowestPrice":lowestPrice, "platform":platform, "releaseDate":releaseDate }
-			if platform != None:
-				gameRec['platform'] = platform
-			return gameRec
-		except( AWSError ):
-			print( "failure to find the single game for asin " + asin )
-			return None
+				"itemImage":itemImage, "lowestPrice":lowestPrice, "platform":platform, "releaseDate":releaseDate }
+			gameList.append( gameRec )
+			
+		return gameList
+
 	
+	@WebServiceRecovery()
+	def getSingleGame( self, asin, platform=None ):
+		"""returns data on a single game. ( mainly used for debugging and testing special cases )"""
 
-
+		node = self.api.item_lookup( asin, ResponseGroup="Small,ItemAttributes,Offers,Images" )
+		item = node.Items.Item
+		
+		gameTitle = unicode( item.ItemAttributes.Title )
+		price = self._getPrice( item )
+		lowestPrice = self._getLowestPrice( item )
+		itemPage = str( item.DetailPageURL )
+		itemImage = "NoImage"
+		if hasattr( item, "MediumImage" ):
+			itemImage = str( item.MediumImage.URL )
+		
+		if hasattr( item.ItemAttributes, "ReleaseDate" ):
+			releaseDate = str( item.ItemAttributes.ReleaseDate )
+			releaseDateArr = string.split( releaseDate, "-" )
+			yr = int(releaseDateArr[0])
+			mo = int(releaseDateArr[1])
+			dy = int(releaseDateArr[2])
+			releaseDate = datetime.datetime( yr, mo, dy, 0,0,0,0 ) 
+		else:
+			releaseDate = None
+		
+		gameRec = { "asin":asin, "gameTitle":gameTitle, "price":price, "itemPage":itemPage, \
+				"itemImage":itemImage, "lowestPrice":lowestPrice, "platform":platform, "releaseDate":releaseDate }
+		if platform != None:
+			gameRec['platform'] = platform
+		return gameRec
+				
+	@WebServiceRecovery()
 	def getGamePageCount( self, platform ):
 		"""gets the number of pages available of data available for this platform.
 		platform arg expects a string arg (example 'xbox360', NOT an amazon node identifier"""
@@ -409,7 +430,7 @@ class GameWebService:
 
 
 
-
+	@WebServiceRecovery()
 	def getHardware( self, browseNodeId, pageNum ):
 		"""Pull a page of lexified xml web service data from amazon and return pertainent data
 		as a dictionary list."""
@@ -426,12 +447,10 @@ class GameWebService:
 				hardwareList.append( hardRec )
 			except( UnicodeEncodeError ):
 				print( "Error while processing unicode in wsGetHardware" )
-			except( NoExactMatchesFound ):
-				print( "wsGetHardware: Couldn't find a match for browse node: %s on page %s" % ( browseNodeId, pageNum ) )
 	
 		return hardwareList
 
-
+	@WebServiceRecovery()
 	def getHardwarePageCount( self, browseNodeId ):
 		"""Get the number of pages of data available for this hardware node."""
 
@@ -444,17 +463,16 @@ class GameWebService:
 
 
 
-# TODO: Config file args need to be passed into all class constructors.
 class ReviewWebService:
-
-	
+	"""Grabs game review data from gamepro.  That is all"""	
 	def __init__(self, configFileName, dbVer ):
 		# note: technically, you don't need the configFileName argument.  there really isn't anything special about the args here.
 		# it's just here to be consistant with all the other classes.
 		cp = ConfigParser.SafeConfigParser()
 		cp.read( configFileName )
 		self.gameprokey=cp.get( dbVer, "gameprokey" )
-			
+
+	@WebServiceRecovery()
 	def getAllReviews( self, platform ):
 		"""Pulls review information for all games for a given platform."""
 
@@ -488,6 +506,8 @@ class ReviewWebService:
 
 	
 class ReviewDatabase:
+	"""Handles reading and updating review data in the database."""
+
 	def __init__(self, configFileName, dbVer ):
 		cp = ConfigParser.SafeConfigParser()
 		cp.read( configFileName )
@@ -508,7 +528,6 @@ class ReviewDatabase:
 
 		revID = str(review[ "review_id" ])
 		query = "select * from game_reviews where review_id = %s"
-		#pdb.set_trace() # DEBUG since this is the failpoint is the line below every time though it only happens with prod.
 		resSet = self.csr.execute( query, (revID ) )
 		if self.csr.fetchone() == None:
 			return False
@@ -532,6 +551,7 @@ class ReviewDatabase:
 		self.csr.execute( query, ( reviewID, reviewScore, articleLink, asin, content ) )
 
 	def getReviews( self ):
+		"""Pull a list of all the reviews from the database regardless of platform"""
 		resList = list()
 		query = "select * from game_reviews"
 		self.csr.execute( query )
