@@ -67,7 +67,6 @@ def shouldAddGameToDatabase( game ):
 	return True
 			
 
-		
 def shouldUpdateListPrice( game ):
 	""" Determine whether or not the price should be updated.
 	TODO: This is only good for list prices.  Need something for "lowest price" updates too."""	
@@ -128,16 +127,8 @@ def storeGameData( wsGameList ):
 	#breakdown the web service game list to addable and updatable parts
 	@RecoverWSExceptions(3)
 	def breakdownList( gameList ):
-		games2Add = list()
-		games2Update = list()
-
-		for game in gameList:
-			if shouldAddGameToDatabase( game ):
-				games2Add.append( game )
-			elif shouldUpdateListPrice( game ):
-				games2Update.append( game )			
-				
-	
+		games2Add = filter( shouldAddGameToDatabase, gameList )
+		games2Update = filter( shouldUpdateListPrice, gameList )
 		return games2Add, games2Update
 
 	gamesToAdd, gamesToUpdate = breakdownList( wsGameList )
