@@ -3,10 +3,7 @@
 # by Phil Cote
 # An object oriented attempt to clean up the main logic by taking out all the getter and setter stuff for web services and the DB
 # Ultimate goal is to make the code base a bit more test friendly.
-# Last Updated: October 7, 2010
 
-# TODO: This is also going to need to have some exception handling built into it at some point.
-# Lack of set up to handle nasty surprises == inevitably nasty scenarios.
 
 
 """
@@ -58,7 +55,7 @@ REVIEW_CONTENT = 4
 
 
 class WebServiceRecovery(object):
-	"""Makes a few extra attempts to recover gracefully from an error before failing.
+	"""Decorator that makes a few extra attempts to recover gracefully from a web service related error before failing.
 	"""
 		
 	def __call__(self, fun, *args ):
@@ -93,11 +90,36 @@ class WebServiceRecovery(object):
 
 		return newfun 
 
+
+class RecoverDBExceptions(object):
+	"""
+	Decorator that wraps database exceptions that happens when writing
+	"""
+	def __init__(self):
+		pass
+
+	def __call__(self, f ):
+		def wrapperfunc(*args):
+			gamerec = args[1]
+			asin = gamerec['asin']
+
+			try:
+				self.res = f(*args)
+		
+			except( IntegrityError ):
+				print( "integrity error: " )
+				updateFile.write( "\nasin number: %s causes an integrity violation and will not be added to the game table" % (asin) )
+			except( UnicodeEncodeError ):
+				updateFile.write( "\nasin number: %s fails due to unicode encoding problem" % (asin) )
+			
+			return self.res	
+		return wrapperfunc		
+
+
 class GameDatabase:
 	"""Manages game software or hardware data that has to go in, or, or be updated in the database"""
 
 	def __init__(self, configFileName, dbVer ):
-
 		cp = ConfigParser.SafeConfigParser()
 		cp.read( configFileName )
 
@@ -195,6 +217,7 @@ class GameDatabase:
 			game = self.makeGameDic( resSet )
 			return game	
 
+	@RecoverDBExceptions()
 	def addGame( self, game ):
 		"""Adds a single game to the database."""
 	
@@ -209,7 +232,7 @@ class GameDatabase:
 		releaseDate = game['releaseDate']
 		self.csr.execute( insertQuery, ( asin, title, price, ts, price, itemImage, itemPage, lowestPrice, platform, releaseDate ) )
 
-
+	@RecoverDBExceptions()
 	def updatePrice( self, game ):
 		"""Makes price changes to a specific game."""  
 
@@ -229,7 +252,8 @@ class GameDatabase:
 
 		# removal any hardware that might be on the games table. (done to get around trigger permission problems on prod.)
 		self.removeGame( hwItem['asin'] )
-
+	
+	@RecoverDBExceptions()
 	def refreshLowestPrice( self, wsGame ):
 		""" Ensures that the lowest price always ends up being the latest price from the web service
 
@@ -258,6 +282,7 @@ class GameDatabase:
 		"""Deletes anything in the list of software games that have been marked as an exclusion"""
 		query = "delete from games where asin in ( select asin from game_exclusions )"
 		self.csr.execute( query )
+
 
 	def getExclusions( self ):
 		"""

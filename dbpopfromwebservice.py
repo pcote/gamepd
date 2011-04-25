@@ -91,27 +91,6 @@ def shouldUpdateListPrice( game ):
 	return False
 
 
-class RecoverWSExceptions:
-	"""Manages common exception handling that comes from dealing with Web services
-	and getting url connection errors(INCOMPLETE). 
-	"""
-	def __init__(self, numberAttempts ):
-		self.numberAttempts = numberAttempts
-
-	def __call__(self, f ):
-		def wrapperfunc(*args):
-			try:
-				self.res = f(*args)
-		
-			except( IntegrityError ):
-				print( "integrity error: " )
-				updateFile.write( "\nasin number: %s causes an integrity violation and will not be added to the game table" )
-			except( UnicodeEncodeError ):
-				updateFile.write( "\nasin number: %s fails due to unicode encoding problem" )
-			
-			return self.res	
-		return wrapperfunc		
-
 
 def storeGameData( wsGameList ):
 	""" Take a raw list of games (typically 10) and store them in the database.
@@ -124,8 +103,6 @@ def storeGameData( wsGameList ):
 	gameTitle=""
 	errorCount = 0
 
-	#breakdown the web service game list to addable and updatable parts
-	@RecoverWSExceptions(3)
 	def breakdownList( gameList ):
 		games2Add = filter( shouldAddGameToDatabase, gameList )
 		games2Update = filter( shouldUpdateListPrice, gameList )
