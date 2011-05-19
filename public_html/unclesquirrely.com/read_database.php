@@ -3,7 +3,7 @@ class GameGetter
 {
 
 	private $orderClause = "";
-	
+	private $order = "last_updated";	
 	public function getGameData()
 	{
 		
@@ -13,7 +13,7 @@ class GameGetter
 		$dbc = mysql_connect( $host, $user, $pw ) or die( "cannot connect to host: " . $host . " for user: " . $user );
 		mysql_select_db( $db ) or die( "failed to connect to database $db" );
 
-		$sprocQuery = "call getpageofgames( $this->lowerLimit , $this->maxPrice , '$this->platform' , '$this->orderClause'  )";
+		$sprocQuery = "call getpageofgames( $this->lowerLimit , $this->maxPrice , '$this->platform' , '$this->order'  )";
 		$rs = mysql_query( $sprocQuery );
 
 		$gameList = array();
@@ -47,8 +47,9 @@ class GameGetter
 
 	public function __construct( $platform = "wii", $orderType = "last_updated", $pageNum = 1 )
 	{
+		$this->order = $orderType;
 		$this->setPlatform( $platform );
-		$this->setOrder( $orderType );
+		//$this->setOrder( $orderType );
 		$this->setPageNum( $pageNum );
 	}
 
@@ -64,22 +65,6 @@ class GameGetter
 	}
 
 
-	private function setOrder( $orderType )
-	{
-		if( $orderType == 'cheap' ){
-			$this->orderClause = "order by price";
-		}
-		elseif( $orderType == 'alpha' ){
-			$this->orderClause = "order by game_title"; 
-		}
-		elseif( $orderType == 'release' ){
-			$this->orderClause = "order by release_date desc";
-		}
-		else{
-			$this->orderClause = "order by last_updated desc";
-		}
-		//echo( "<br /><br />new order clause is... $this->orderClause" );
-	}
 
 	// note: platform determines the max allowable price.
 	private function setPlatform( $platform ){
