@@ -23,49 +23,31 @@ from optparse import OptionParser
 from gamedata import *
 
 
-
 def shouldAddGameToDatabase( game ):
 	"""Determine whether the game from the web service meets criteria for 
-	 being stored in the database."""		
-
-	# the game should be released.
-	if game['releaseDate'] == None:
-		return False
-	if game['releaseDate'] > datetime.datetime.now():
-		return False
-
-	# confirm that the price is valid.
-	if game['price'] == -1:
-		return False
-	
-	# make sure it's not hardware.
-	if gameDB.getHardwareRecord( game['asin'] ) != None:
-		return False
-	
-	# only stuff that's 49.99 or less should be added to the database. (applicable to xbox 360 and ps3 )
-	if game['price'] >= 50:
-		return False
-
-	# since brand new list price is already 49.99, bargains for wii have to be less than 40 dollars.
-	if game['platform'] == 'wii' and game['price'] >= 40:
-		return False
-	
-	# if the asin already exists in the database, it doesn't need to be astedded again.
-	dbRec = gameDB.getGameRecord( game['asin'] )
-	if len( dbRec ) > 0:
-		return False
-	
-	# online game codes and game downloads not allowed.  physical titles only
+	 being stored in the database."""	
 	titleString = game['gameTitle']
-	if titleString.find( '[Online Game Code' ) > 0 or titleString.find( '[Game Download]' ):
-		return False
 
-	# games on the excluded list should not be added.
-	if gameDB.isExcluded( game['asin'] ):
+	# cheap excuses ( don't require access to the database. )
+	notReleasedYet = [ game['releaseDate'] == None or game['releaseDate'] > datetime.datetime.now(), ]
+	priceInvalid = [ game['price'] == -1, ]
+	tooExpensive = [ game['price'] >= 50, game['platform'] == 'wii' and game['price'] >= 40, ]
+	download = [ titleString.find( '[Online Game Code' ) > 0, titleString.find( '[Game Download]' ) >= 0, ]
+
+	cheapExcuses = notReleasedYet + priceInvalid  + tooExpensive + download 
+	if any( cheapExcuses ):
+		return False	
+
+	# exensive excuses.  ( do require database reads. )
+	onExclusionList = [ gameDB.isExcluded( game['asin'] ), ]
+	hardware = [ gameDB.getHardwareRecord( game['asin'] ) != None, ]
+	asinAlreadyThere = [ len( gameDB.getGameRecord( game['asin'] ) ) > 0, ]
+
+	expensiveExcuses = onExclusionList + hardware + asinAlreadyThere	
+	if any( expensiveExcuses ):
 		return False
-		
-	return True
-			
+	else:
+		return True
 
 def shouldUpdateListPrice( game ):
 	""" Determine whether or not the price should be updated.
