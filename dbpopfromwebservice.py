@@ -27,27 +27,33 @@ def shouldAddGameToDatabase( game ):
 	"""Determine whether the game from the web service meets criteria for 
 	 being stored in the database."""	
 	titleString = game['gameTitle']
+	
+	
+	def lazyExcuses():
+		# cheap excuses ( don't require access to the database. )
+		notReleasedYet = [ game['releaseDate'] == None or game['releaseDate'] > datetime.datetime.now(), ]
+		yield notReleasedYet
+		priceInvalid = [ game['price'] == -1, ]
+		yield priceInvalid
+		tooExpensive = [ game['price'] >= 50, game['platform'] == 'wii' and game['price'] >= 40, ]
+		yield tooExpensive
+		download = [ titleString.find( '[Online Game Code' ) > 0, titleString.find( '[Game Download]' ) >= 0, ]
+		yield download
+		
+		# requires database access
+		onExclusionList = [ gameDB.isExcluded( game['asin'] ), ]
+		yield onExclusionList
+		hardware = [ gameDB.getHardwareRecord( game['asin'] ) != None, ]
+		yield hardware
+		asinAlreadyThere = [ len( gameDB.getGameRecord( game['asin'] ) ) > 0, ]
+		yield asinAlreadyThere
+	
+	for excuse in lazyExcuses():
+		if excuse:
+			return False
+	
+	return True
 
-	# cheap excuses ( don't require access to the database. )
-	notReleasedYet = [ game['releaseDate'] == None or game['releaseDate'] > datetime.datetime.now(), ]
-	priceInvalid = [ game['price'] == -1, ]
-	tooExpensive = [ game['price'] >= 50, game['platform'] == 'wii' and game['price'] >= 40, ]
-	download = [ titleString.find( '[Online Game Code' ) > 0, titleString.find( '[Game Download]' ) >= 0, ]
-
-	cheapExcuses = notReleasedYet + priceInvalid  + tooExpensive + download 
-	if any( cheapExcuses ):
-		return False	
-
-	# exensive excuses.  ( do require database reads. )
-	onExclusionList = [ gameDB.isExcluded( game['asin'] ), ]
-	hardware = [ gameDB.getHardwareRecord( game['asin'] ) != None, ]
-	asinAlreadyThere = [ len( gameDB.getGameRecord( game['asin'] ) ) > 0, ]
-
-	expensiveExcuses = onExclusionList + hardware + asinAlreadyThere	
-	if any( expensiveExcuses ):
-		return False
-	else:
-		return True
 
 def shouldUpdateListPrice( game ):
 	""" Determine whether or not the price should be updated.
