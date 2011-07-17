@@ -5,6 +5,7 @@
 <meta name="keywords" content= "cheap games, video games, wii, Nintendo, Playstation 3, PS3, XBox 360, console games" >
 
 <script type = "text/javascript" src = "../colorbox/colorbox/jquery-1.5.min.js"></script>
+<script type = "text/javascript" src = "jquery.cookie.js"></script>
 <script type = "text/javascript" src = "../colorbox/colorbox/jquery.colorbox-min.js"</script>
 
 <link rel = "stylesheet" type = "text/css" href = "colorbox.css"></style>
@@ -42,6 +43,7 @@ var changePlatform = function( platform ){
 
 var changeOrder = function( orderArg ){
 	$("#order").val( orderArg );
+	$("#pagenum").val( "1" );
 }
 
 var changePage = function( pageDirection ){
@@ -110,12 +112,23 @@ arrowNav = function( event ){
 
 $(document).ready( function(){
 	//default form variable setup.
+	$("#pagenum").val("1");
 	$("#platform").val("wii");
 	$("#order").val("last_updated");
-	$("#pagenum").val("1");
-	setPageMax( "wii" ); // TODO: tech debt.  not a very "functional" way to set the pagemax variable.
 
-	var loadURL = "game_table.php?platform=wii&pagenum=1&order=last_updated";
+	//override the defaults if there are cookies available.
+	var cookiePlatform = $.cookie( 'platform' );
+	var cookieOrder = $.cookie( 'order' );
+	if( cookiePlatform != null ){
+		$("#platform").val( cookiePlatform );
+		$("#order").val( cookieOrder );
+	}
+	
+	setPageMax( $( "#platform" ).val );
+
+	//var loadURL = "game_table.php?platform=wii&pagenum=1&order=last_updated";
+	var loadURL = "game_table.php?platform=" + $("#platform").val() + "&pagenum=1&order=" + $("#order" ).val();
+
 	$("#gametableid").load( loadURL, function(){
 		$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );
 	} );

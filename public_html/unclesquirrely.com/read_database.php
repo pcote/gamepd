@@ -26,13 +26,11 @@ class GameGetter
 		$query = $query . " " . $this->orderClause;
 		
 		$query = $query . " limit $this->lowerLimit,10";
-		
 		$dbc = mysql_connect( $host, $user, $pw ) or die( "cannot connect to host: " . $host . " for user: " . $user );
 		mysql_select_db( $db ) or die( "failed to connect to database $db" );
 		$rs = mysql_query( $query );
 
 		$gameList = array();
-
 		$gameCount = 0;
 		while( $row = mysql_fetch_assoc( $rs ) ){
 			$gameRec = array();
@@ -66,6 +64,12 @@ class GameGetter
 		$this->setPlatform( $platform );
 		$this->setOrder( $orderType );
 		$this->setPageNum( $pageNum );
+
+		$expireDate = time() + 60 * 60 * 24 * 30; // cookie expires 30 days from now.
+		setcookie( "platform", $platform, $expireDate );
+		setcookie( "order", $orderType, $expireDate );
+		setcookie( "pagenum", $pageNum, $expireDate );
+		
 	}
 
 	public function __tostring()
@@ -94,7 +98,6 @@ class GameGetter
 		else{
 			$this->orderClause = "order by last_updated desc";
 		}
-		//echo( "<br /><br />new order clause is... $this->orderClause" );
 	}
 
 	// note: platform determines the max allowable price.
@@ -111,18 +114,18 @@ class GameGetter
 		}
 	}
 
-	
 
 }
 
 $gameGetter = null;
 
-
 if( isset( $_GET['platform'] ) and isset( $_GET['order'] ) and isset( $_GET['pagenum'] ) )
 {
+	
 	$platform = $_GET['platform'];
 	$orderType = $_GET['order'];
 	$pageNum = $_GET['pagenum'];
+	
 	$gameGetter = new GameGetter( $platform, $orderType, $pageNum );
 }
 else
