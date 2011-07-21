@@ -124,7 +124,7 @@ $(document).ready( function(){
 		$("#order").val( cookieOrder );
 	}
 	
-	setPageMax( $( "#platform" ).val );
+	setPageMax( $( "#platform" ).val() );
 
 	//var loadURL = "game_table.php?platform=wii&pagenum=1&order=last_updated";
 	var loadURL = "games.php?platform=" + $("#platform").val() + "&pagenum=1&order=" + $("#order" ).val();
