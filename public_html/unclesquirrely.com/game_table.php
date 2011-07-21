@@ -1,9 +1,3 @@
-<?php 
-require( "read_database.php" );
- ?>
-
-
-
 <table border="1px" width="100%" cellspacing=20>
 <tr>
 <?php

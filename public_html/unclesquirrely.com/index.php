@@ -90,9 +90,9 @@ var loadPage = function( changeAction, changeArg ){
 		var order = $("#order").val();
 		var platform = $("#platform").val();
 		var pagenum = $("#pagenum").val();
-		var loadURL = "game_table.php?platform="+platform+"&pagenum="+pagenum+"&order="+order;
+		var loadURL = "games.php?platform="+platform+"&pagenum="+pagenum+"&order="+order;
 		$("#gametableid" ).load( loadURL, function(){
-			$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );			
+			$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );
 		} );
 	}
 }
@@ -127,7 +127,7 @@ $(document).ready( function(){
 	setPageMax( $( "#platform" ).val );
 
 	//var loadURL = "game_table.php?platform=wii&pagenum=1&order=last_updated";
-	var loadURL = "game_table.php?platform=" + $("#platform").val() + "&pagenum=1&order=" + $("#order" ).val();
+	var loadURL = "games.php?platform=" + $("#platform").val() + "&pagenum=1&order=" + $("#order" ).val();
 
 	$("#gametableid").load( loadURL, function(){
 		$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );
