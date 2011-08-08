@@ -9,25 +9,40 @@ class GameGetter
 		
 		require( "../../db_connect.php" );
 		// TODO: Clarification of rules for what's allowed on the pages needed here.
-		$query = "select * " .
-		"from games as g " .
-		"left join game_reviews gr " .
-		"on g.asin = gr.asin " .
-		"where price > 0 and price < $this->maxPrice " .
-		"and lowest_price > 0 and lowest_price <= price and platform = '$this->platform' " .
-		"and release_date <= now() " .
-		"union select * " . // union select is repeat of query above to grab the 4 or 5 edge cases where the list price is set to zero (not actually free)
-		"from games as g " .
-		"left join game_reviews gr " .
-		"on g.asin = gr.asin " .
-		"where price = 0 and platform = '$this->platform' " . 
-		"and release_date <= now() ";
+		// union select is repeat of query above to grab the 4 or 5 edge cases where the list price is set to zero (not actually free)
+		$query = <<<EOD
+
+		select 
+		g.asin, g.game_title, g.price, g.last_updated, g.item_image, g.item_page, g.lowest_price, g.platform, g.release_date,
+		gr.score, gr.article_link, gr.review_content
+
+		from games as g
+		left join game_reviews gr
+		on g.asin = gr.asin
+
+		where price > 0 and price < $this->maxPrice
+		and lowest_price > 0 and lowest_price <= price and platform = '$this->platform'
+		and release_date <= now()
+
+		union 
+
+		select g.asin, g.game_title, g.price, g.last_updated, g.item_image, g.item_page, g.lowest_price, g.platform, g.release_date,
+		gr.score, gr.article_link, gr.review_content
+
+		from games as g
+		left join game_reviews gr
+		on g.asin = gr.asin
+
+		where price = 0 and platform = '$this->platform'
+		and release_date <= now() 
+EOD;
 		
 		$query = $query . " " . $this->orderClause;
 		
 		$query = $query . " limit $this->lowerLimit,10";
 		$dbc = mysql_connect( $host, $user, $pw ) or die( "cannot connect to host: " . $host . " for user: " . $user );
 		mysql_select_db( $db ) or die( "failed to connect to database $db" );
+		
 		$rs = mysql_query( $query );
 
 		$gameList = array();
