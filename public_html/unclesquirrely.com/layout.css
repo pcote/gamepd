@@ -1,0 +1,28 @@
+#title
+{
+text-align:center;
+}
+
+#menu
+{
+text-align:center;
+}
+
+#main_container
+{
+float:left;
+width: 780px;
+height:780px;
+}
+
+#game_container
+{
+text-align:center;
+}
+
+#nextNav, #previousNav
+{
+text-align:center;
+}
+
+

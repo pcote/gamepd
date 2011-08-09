@@ -174,7 +174,7 @@ $(document).ready( function(){
 
 
 <div id="title"><img src = "images/us_logo.png" /></div>
-<a id="aboutNav" href = "about.html">About This Site</a>
+
 <br />
 
 <!-- menu -->
@@ -186,7 +186,8 @@ $(document).ready( function(){
 <a id="latestDropNav" href = "javascript:void{0};">Show Latest Drops</a>&nbsp;&nbsp;&nbsp;
 <a id="cheapestNav" href = "javascript:void{0};">Show Cheapest</a> &nbsp;&nbsp;&nbsp;
 <a id="alphabetizeNav" href = "javascript:void{0};">Alphabetize Them</a> &nbsp;&nbsp;&nbsp;
-<a id="newestNav" href = "javascript:void{0};">Show Newest</a>
+<a id="newestNav" href = "javascript:void{0};">Show Newest</a> &nbsp;&nbsp;&nbsp;
+<a id="aboutNav" href = "about.html">About This Site</a>
 </div>
 
 <div id = "main_container">
@@ -194,13 +195,28 @@ $(document).ready( function(){
 
 <!-- new div layout to be populated by json data via jquery -->
 <div id = "game_container">
-<div id = "top_row">
-<div id = "game0"></div><div id = "game1"></div><div id = "game2"></div><div id = "game3"></div><div id = "game4"></div>
+
+<div id = "col1">
+	<div id = "game0"></div>
+	<div id = "game5"></div>
+</div>
+<div id = "col2">
+	<div id = "game1"></div>
+	<div id = "game6"></div>
+</div>
+<div id = "col3">
+	<div id = "game2"></div>
+	<div id = "game7"></div>
+</div>
+<div id = "col4">
+	<div id = "game3"></div>
+	<div id = "game8"></div>
+</div>
+<div id = "col5">
+	<div id = "game4"></div>
+	<div id = "game9"></div>
 </div>
 
-<div id = "bottom_row"
-<div id = "game5"></div><div id = "game6"></div><div id = "game7"></div><div id = "game8"></div><div id = "game9"></div>
-</div>
 
 </div> <!-- end of main_container -->
 
