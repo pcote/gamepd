@@ -13,6 +13,16 @@
 #side_image{background-image: url("images/Acorn.png");}
 a {text-decoration: underline;color: #EB1D1D;}
 a:hover {text-decoration: none;}
+
+#gametableid
+{
+}
+
+#game0, #game1,#game2, #game3, #game4
+{
+
+}
+
 </style>
 
 <!-- Analytics monitoring.  Nothing to see here. -->
@@ -91,9 +101,10 @@ var loadPage = function( changeAction, changeArg ){
 		var platform = $("#platform").val();
 		var pagenum = $("#pagenum").val();
 		var loadURL = "games.php?platform="+platform+"&pagenum="+pagenum+"&order="+order;
-		$("#gametableid" ).load( loadURL, function(){
+		/*$("#gametableid" ).load( loadURL, function(){
 			$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );
-		} );
+		} ); */
+		$.ajax( { url: loadURL, success: populateDivs } );
 	}
 }
 
@@ -108,7 +119,19 @@ arrowNav = function( event ){
 }
 
 
-
+var populateDivs = function( jsonData ){
+	var gameRecords = $.parseJSON( jsonData );
+	var i = 0;
+	while( i < gameRecords.length ){
+		var gameDiv = "#game" + String( i );
+		var gameRec = gameRecords[i];
+		var gamehtml = gameRec.game_title + "<br />";
+		gamehtml += "$" + String( gameRec.price ) + "<br />";
+		gamehtml += "<img src = '" + gameRec.item_image + "' /><br /><br />";
+		$( gameDiv ).html( gamehtml );
+		i++;
+	}
+}
 
 $(document).ready( function(){
 	//default form variable setup.
@@ -129,9 +152,12 @@ $(document).ready( function(){
 	//var loadURL = "game_table.php?platform=wii&pagenum=1&order=last_updated";
 	var loadURL = "games.php?platform=" + $("#platform").val() + "&pagenum=1&order=" + $("#order" ).val();
 
-	$("#gametableid").load( loadURL, function(){
+	/*$("#gametableid").load( loadURL, function(){
 		$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );
-	} );
+	} ); */
+
+
+	$.ajax( { url : loadURL, success : populateDivs } );
 
 	// setup the page update callbacks
 	$("#ps3Nav").click( loadPage( changePlatform, "ps3" ) );
@@ -190,8 +216,15 @@ $(document).ready( function(){
 <td align='right' width="10%" id="side_image">
 <div id="previousNav" style="visibility:visible;"><a href = "javascript:void{0};"> &lt;&lt;</a>  &nbsp;&nbsp;</div>
 </td>
-<td align='center'><div id = "gametableid"></div></td>
+<td align='center'>
 
+<!-- new div layout to be populated by javascript -->
+<div id = "gametableid">
+<div id = "game0"></div><div id = "game1"></div><div id = "game2"></div><div id = "game3"></div><div id = "game4"></div><div id = "game5"></div>
+<div id = "game6"></div><div id = "game7"></div><div id = "game8"></div><div id = "game9"></div>
+</div>
+
+</td>
 <td align='left' width="10%" id="side_image">
 <div id="nextNav"><a href = "javascript:void{0};"> &gt;&gt; </a></div>
 </td>

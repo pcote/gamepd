@@ -19,6 +19,6 @@ else
 
 $gameList = $gameGetter->getGameData();
 $jsonList = json_encode( $gameList );
-// echo( $jsonList );
-require( "game_table.php" );
+echo( $jsonList );
+//require( "game_table.php" );
 ?>
