@@ -11,18 +11,24 @@ text-align:center;
 #main_container
 {
 float:left;
-width: 780px;
-height:780px;
 }
 
 #game_container
 {
-text-align:center;
+float:left;
 }
 
-#nextNav, #previousNav
+#previousNav
 {
-text-align:center;
+float:left;
 }
 
+#nextNav
+{
+float:left;
+}
 
+#col1, #col2, #col3, #col4, #col5
+{
+float:left;
+}
