@@ -4,25 +4,16 @@
 <title>Uncle Squirrely - The Second Run Theatre of Video Games</title>
 <meta name="keywords" content= "cheap games, video games, wii, Nintendo, Playstation 3, PS3, XBox 360, console games" >
 
-<script type = "text/javascript" src = "../colorbox/colorbox/jquery-1.5.min.js"></script>
+<script type = "text/javascript" src = "colorbox/colorbox/jquery-1.5.min.js"></script>
 <script type = "text/javascript" src = "jquery.cookie.js"></script>
-<script type = "text/javascript" src = "../colorbox/colorbox/jquery.colorbox-min.js"</script>
+<script type = "text/javascript" src = "colorbox/colorbox/jquery.colorbox-min.js"></script>
 
-<link rel = "stylesheet" type = "text/css" href = "colorbox.css"></style>
+<link rel = "stylesheet" type="text/css" href="layout.css" />
+<link rel = "stylesheet" type = "text/css" href = "colorbox.css" />
 <style type = "text/css">
 #side_image{background-image: url("images/Acorn.png");}
 a {text-decoration: underline;color: #EB1D1D;}
 a:hover {text-decoration: none;}
-
-#gametableid
-{
-}
-
-#game0, #game1,#game2, #game3, #game4
-{
-
-}
-
 </style>
 
 <!-- Analytics monitoring.  Nothing to see here. -->
@@ -84,7 +75,6 @@ var changePage = function( pageDirection ){
 
 }
 
-
 var setPageMax = function( platform ){
 	var pageMaxHelper = function( mPage ){
 		$("#pagemax").val( mPage );
@@ -101,7 +91,7 @@ var loadPage = function( changeAction, changeArg ){
 		var platform = $("#platform").val();
 		var pagenum = $("#pagenum").val();
 		var loadURL = "games.php?platform="+platform+"&pagenum="+pagenum+"&order="+order;
-		/*$("#gametableid" ).load( loadURL, function(){
+		/*$("#game_container" ).load( loadURL, function(){
 			$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );
 		} ); */
 		$.ajax( { url: loadURL, success: populateDivs } );
@@ -138,21 +128,20 @@ $(document).ready( function(){
 	$("#pagenum").val("1");
 	$("#platform").val("wii");
 	$("#order").val("last_updated");
-
 	//override the defaults if there are cookies available.
 	var cookiePlatform = $.cookie( 'platform' );
 	var cookieOrder = $.cookie( 'order' );
+
 	if( cookiePlatform != null ){
 		$("#platform").val( cookiePlatform );
 		$("#order").val( cookieOrder );
 	}
-	
+
 	setPageMax( $( "#platform" ).val() );
 
-	//var loadURL = "game_table.php?platform=wii&pagenum=1&order=last_updated";
 	var loadURL = "games.php?platform=" + $("#platform").val() + "&pagenum=1&order=" + $("#order" ).val();
 
-	/*$("#gametableid").load( loadURL, function(){
+	/*$("#game_container").load( loadURL, function(){
 		$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );
 	} ); */
 
@@ -178,25 +167,18 @@ $(document).ready( function(){
 
 });
 
-
-
-
 </script>
 </head>
 
 <body>
-<center>
 
-<table width="80%">
-<tr>
-<td width="10%">&nbsp;</td>
-<td align='center' width="80%"><div id="title"><img src = "images/us_logo.png" /></div></td>
-<td width="10%" align="right" valign="top"><a id="aboutNav" href = "about.html">About This Site</a></td>
-</tr>
-</table>
+
+<div id="title"><img src = "images/us_logo.png" /></div>
+<a id="aboutNav" href = "about.html">About This Site</a>
 <br />
-<table width="80%">
-<tr><td id="blank_id" align="center">
+
+<!-- menu -->
+<div id = "menu">
 <a id="ps3Nav" href = "javascript:void{0};">Playstation 3</a>&nbsp;&nbsp;&nbsp;
 <a id="xbox360Nav" href = "javascript:void{0};">XBox 360</a>&nbsp;&nbsp;&nbsp;
 <a id="wiiNav" href = "javascript:void{0};">Wii</a><br />
@@ -205,32 +187,29 @@ $(document).ready( function(){
 <a id="cheapestNav" href = "javascript:void{0};">Show Cheapest</a> &nbsp;&nbsp;&nbsp;
 <a id="alphabetizeNav" href = "javascript:void{0};">Alphabetize Them</a> &nbsp;&nbsp;&nbsp;
 <a id="newestNav" href = "javascript:void{0};">Show Newest</a>
-</td></tr>
-</table>
-
-</center>
-
-<center>
-<table width="80%">
-<tr>
-<td align='right' width="10%" id="side_image">
-<div id="previousNav" style="visibility:visible;"><a href = "javascript:void{0};"> &lt;&lt;</a>  &nbsp;&nbsp;</div>
-</td>
-<td align='center'>
-
-<!-- new div layout to be populated by javascript -->
-<div id = "gametableid">
-<div id = "game0"></div><div id = "game1"></div><div id = "game2"></div><div id = "game3"></div><div id = "game4"></div><div id = "game5"></div>
-<div id = "game6"></div><div id = "game7"></div><div id = "game8"></div><div id = "game9"></div>
 </div>
 
-</td>
-<td align='left' width="10%" id="side_image">
-<div id="nextNav"><a href = "javascript:void{0};"> &gt;&gt; </a></div>
-</td>
-</table>
-</center>
+<div id = "main_container">
+<div id="previousNav" style="visibility:visible;"><a href = "javascript:void{0};"> &lt;&lt;</a>  &nbsp;&nbsp;</div>
 
+<!-- new div layout to be populated by json data via jquery -->
+<div id = "game_container">
+<div id = "top_row">
+<div id = "game0"></div><div id = "game1"></div><div id = "game2"></div><div id = "game3"></div><div id = "game4"></div>
+</div>
+
+<div id = "bottom_row"
+<div id = "game5"></div><div id = "game6"></div><div id = "game7"></div><div id = "game8"></div><div id = "game9"></div>
+</div>
+
+</div> <!-- end of main_container -->
+
+<div id="nextNav"><a href = "javascript:void{0};"> &gt;&gt; </a></div>
+
+</div> <!-- end of main container --> 
+
+
+<!-- No more layout html.  All form stuff from here on down.  -->
 <form name = "formCurrentState" method="post">
 	<input type = "hidden"  name = "platform" id="platform"  />
 	<input type = "hidden"  name = "order"  id="order"  />
