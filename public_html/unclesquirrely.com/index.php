@@ -127,14 +127,23 @@ var populateDivs = function( jsonData ){
 		var score = gameRec.score;
 		var gamehtml = "<b>" + gameRec.game_title + "</b><br />";
 		gamehtml = gamehtml + "Release Date: " + release_date + "<br />";
-		gamehtml += "<img src = '" + gameRec.item_image + "' /><br /><br />";
+		
+		if( item_image == "NoImage" ){
+			gamehtml += "<img src = 'images/no_image.jpg' />";
+		}
+		else{
+			gamehtml += "<img src = '" + item_image + "' /><br /><br />";
+		}
+
 		gamehtml += "$" + String( gameRec.price ) + "<br />";
+
+
 		if( score != null ){
-			gamehtml += "<b>Review Score: " + String( score ) + "<br />";
+			gamehtml += "<b>Review Score: " + String( score ) + "</b><br />";
 		}
 
 		gamehtml += "<a href = '" + item_page + "'>Buy Today!</a><br />";
-		gamehtml += "Watch On Chaos TV";
+		gamehtml += "Watch On Chaos TV(disabled)";
 
 		$( gameDiv ).html( gamehtml );
 		i++;
