@@ -6,6 +6,7 @@ text-align:center;
 #menu
 {
 text-align:center;
+padding: 10px;
 }
 
 #main_container
@@ -15,6 +16,7 @@ float:left;
 
 #game_container
 {
+text-align:center;
 float:left;
 }
 
@@ -31,4 +33,13 @@ float:left;
 #col1, #col2, #col3, #col4, #col5
 {
 float:left;
+padding: 10px;
+}
+
+#game0, #game1, #game2, #game3, #game4, #game5, #game6, #game7, #game8, #game9
+{
+padding: 10px;
+height:350px;
+width:240px;
+border: 1px solid black
 }

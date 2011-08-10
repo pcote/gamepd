@@ -115,9 +115,27 @@ var populateDivs = function( jsonData ){
 	while( i < gameRecords.length ){
 		var gameDiv = "#game" + String( i );
 		var gameRec = gameRecords[i];
-		var gamehtml = gameRec.game_title + "<br />";
-		gamehtml += "$" + String( gameRec.price ) + "<br />";
+		var asin = gameRec.asin;
+		var gameTitle = gameRec.game_title;
+		var price = gameRec.price;
+		var item_image = gameRec.item_image;
+		var item_page = gameRec.item_page;
+		var lowest_price = gameRec.lowest_price;
+		var article_link = gameRec.article_link;
+		var last_updated = gameRec.last_updated;
+		var release_date = gameRec.release_date;
+		var score = gameRec.score;
+		var gamehtml = "<b>" + gameRec.game_title + "</b><br />";
+		gamehtml = gamehtml + "Release Date: " + release_date + "<br />";
 		gamehtml += "<img src = '" + gameRec.item_image + "' /><br /><br />";
+		gamehtml += "$" + String( gameRec.price ) + "<br />";
+		if( score != null ){
+			gamehtml += "<b>Review Score: " + String( score ) + "<br />";
+		}
+
+		gamehtml += "<a href = '" + item_page + "'>Buy Today!</a><br />";
+		gamehtml += "Watch On Chaos TV";
+
 		$( gameDiv ).html( gamehtml );
 		i++;
 	}
