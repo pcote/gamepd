@@ -21,6 +21,7 @@ from pdb import set_trace
 import decimal
 import urllib
 import string
+import re
 from xml.dom import minidom
 
 
@@ -44,8 +45,22 @@ OLD_PRICE = 4
 ITEM_IMAGE = 5
 ITEM_PAGE = 6
 LOWEST_PRICE = 7
-PLATFORM = 10
-RELEASE_DATE = 11
+PLATFORM = 8
+RELEASE_DATE = 9
+
+"""
+0  ('B002I0F5I2',
+1  'UNCHARTED 2: Among Thieves - Game of The Year Edition',
+2  29.989999999999998, 
+
+3  datetime.datetime(2011, 3, 5, 12, 10, 33),
+4  49.990000000000002,
+5  'http://ecx.images-amazon.com/images/I/51oFmP4ZWhL._SL160_.jpg',
+6  'http://www.amazon.com/UNCHARTED-2-Among-Thieves-Playstation-3/dp/B002I0F5I2%3FSubscriptionId%3DAKIAIGGNUVYVPNJWY6NQ%26tag%3Dws%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3DB002I0F5I2', 
+7  25.809999999999999, 
+8  'ps3',
+9   datetime.datetime(2010, 10, 12, 0, 0))
+"""
 
 REVIEW_ID = 0
 REVIEW_SCORE = 1
@@ -115,6 +130,18 @@ class RecoverDBExceptions(object):
 			return self.res	
 		return wrapperfunc		
 
+class ValidateAsin( object ):
+	def __init__( self, f ):
+		self.f = f
+
+	def __call__( self, *args ):
+		pattern = "^B[A-Z0-9]{9}$"
+		asin = args[0]
+		matchOb = re.match( pattern, asin )
+		if matchOb:
+			self.f( *args )
+		else:
+			raise Exception( "Invalid Asin: %s" % asin )
 
 class GameDatabase:
 	"""Manages game software or hardware data that has to go in, or, or be updated in the database"""
@@ -149,7 +176,6 @@ class GameDatabase:
 			'lowestPrice':resSet[LOWEST_PRICE], 'reviewScore':None, \
 			'reviewLink':None, 'lastUpdated':resSet[LAST_UPDATED], 'platform':resSet[PLATFORM], 'releaseDate':resSet[RELEASE_DATE] }
 		return gameRec
-
 
 	def getGameRecord( self, asinNum ):
 		"""Pull a single game rec based on it's asin from the database."""
