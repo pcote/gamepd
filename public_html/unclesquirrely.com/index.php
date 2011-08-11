@@ -91,9 +91,6 @@ var loadPage = function( changeAction, changeArg ){
 		var platform = $("#platform").val();
 		var pagenum = $("#pagenum").val();
 		var loadURL = "games.php?platform="+platform+"&pagenum="+pagenum+"&order="+order;
-		/*$("#game_container" ).load( loadURL, function(){
-			$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );
-		} ); */
 		$.ajax( { url: loadURL, success: populateDivs } );
 	}
 }
@@ -116,6 +113,7 @@ var populateDivs = function( jsonData ){
 		var gameDiv = "#game" + String( i );
 		var gameRec = gameRecords[i];
 		var asin = gameRec.asin;
+		var platform = gameRec.platform;
 		var gameTitle = gameRec.game_title;
 		var price = gameRec.price;
 		var item_image = gameRec.item_image;
@@ -143,7 +141,8 @@ var populateDivs = function( jsonData ){
 		}
 
 		gamehtml += "<a href = '" + item_page + "'>Buy Today!</a><br />";
-		gamehtml += "Watch On Chaos TV(disabled)";
+		var chaosString = "<a class='chaostv' href = 'gamevidwin.php?platform=" + platform + "&title=" + encodeURI( gameTitle ) + "'>Watch On Chaos TV</a>";
+		gamehtml += chaosString;
 
 		$( gameDiv ).html( gamehtml );
 		i++;
@@ -165,14 +164,7 @@ $(document).ready( function(){
 	}
 
 	setPageMax( $( "#platform" ).val() );
-
 	var loadURL = "games.php?platform=" + $("#platform").val() + "&pagenum=1&order=" + $("#order" ).val();
-
-	/*$("#game_container").load( loadURL, function(){
-		$(".chaostv").colorbox( { iframe:true, innerWidth:450, innerHeight:450} );
-	} ); */
-
-
 	$.ajax( { url : loadURL, success : populateDivs } );
 
 	// setup the page update callbacks
