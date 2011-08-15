@@ -21,7 +21,15 @@ import gamedata
 import optparse
 from optparse import OptionParser
 from gamedata import *
+import logging
 
+
+"""
+New logging setup.
+"""
+formatString = "%(asctime)s %(levelname)s %(message)s"
+logFile = "gamepd.log"
+logging.basicConfig( format= formatString, datefmt="%m/%d/%Y %I:%M:%S %p", level=logging.INFO, filename="gamepd.log" );
 
 def shouldAddGameToDatabase( game ):
 	"""Determine whether the game from the web service meets criteria for 
@@ -101,14 +109,12 @@ def storeGameData( wsGameList ):
 	for game in gamesToAdd:
 		gameDB.addGame( game )
 		addMessage = "\nadded asin: " + game['asin'] + " title: " + game['gameTitle']
-		print( addMessage ) # keep for collecting samples to debug by
-		updateFile.write( addMessage )
+		logging.info( addMessage ) # keep for collecting samples to debug by
 
 	for game in gamesToUpdate:
 		gameDB.updatePrice( game )
 		updateMessage = "\nupdated asin: " + game['asin'] + " title: " + game['gameTitle'] + "\n"
-		print( updateMessage ) 
-		updateFile.write( updateMessage )
+		logging.info( updateMessage ) 
 
 
 
@@ -121,13 +127,17 @@ def storeNonGameData( hardwareList ):
 		try:
 			if gameDB.getHardwareRecord( hwItem['asin'] ) == None:
 				gameDB.addHardware( hwItem )
-				updateFile.write( "\nhardware added.  asin: " + hwItem['asin'] + " item name: " + unicode( hwItem['item_name'] ) )
+				logging.info( "\nhardware added.  asin: " + hwItem['asin'] + " item name: " + unicode( hwItem['item_name'] ) )
 				
 		except( IntegrityError ):
-			print( "integrity error regarding item: " + hwItem['asin'] )
+			errorMsg = "integrity error regarding item: " + hwItem['asin'] 
+			print( errorMsg )
+			logging.warn( errorMsg )
 		except( UnicodeEncodeError ):
-			print( "store non game data: UNICODE fail over item " + hwItem['asin'] )
-		
+			errorMsg = "store non game data: UNICODE fail over item " + hwItem['asin']
+			print( errorMsg )
+			logging.warn( errorMsg )
+
 
 
 
@@ -177,11 +187,11 @@ def processNonGameData( bNode ):
 		except( NoExactMatchesFound ):
 			msg = "could not find an exact match for page " + str( curPage ) + " for VideoGames on browse node: " + str( bNode )
 			print( msg )
-			updateFile.write( "\n" + msg )
+			logging.warn( "\n" + msg )
 			failCount = failCount + 1
 			if failCount >= failLimit:
 				message = "no match limit reached for node: %s" % ( bNode )
-				updateFile.write( message )
+				logging.warn( message )
 				print( message )
 				return
 
@@ -199,7 +209,7 @@ def processReviews(  platform ):
 			revDB.addReview( game, review )
 			revMsg = "\nreview added for %s" % ( review['game_title'] ) 
 			print( revMsg  )
-			updateFile.write( revMsg )
+			logging.warn( revMsg )
 
 
 
@@ -219,7 +229,7 @@ if __name__ == '__main__':
 	failfile = open( "failfile.txt", "w" )
 	updateFile  = open( "updates.txt", "a" )
 	logDateString = str( datetime.datetime.today() )
-	updateFile.write("\n\nDatabase update on the %s db for date: %s \n" % ( logDateString, dbVersion ) )
+	logging.info("\n\nToday's database updates on the %s db.", dbVersion  )
 
 	configFileName = "dbconfig.cfg"
 	gameDB = GameDatabase(configFileName, dbVersion)
@@ -229,26 +239,26 @@ if __name__ == '__main__':
 
 
 	# deal with the games and (unfortunately) the hardware that goes in with it.
-	updateFile.write( "SOFTWARE UPDATES...\n" )
-	updateFile.write( "\nSoftware updates for the ps3...\n" )
+	logging.info( "SOFTWARE UPDATES...\n" )
+	logging.info( "\nSoftware updates for the ps3...\n" )
 	processSoftwareData( "ps3" )
 
-	updateFile.write( "\nSoftware updates for the xbox 360...\n" )
+	logging.info( "\nSoftware updates for the xbox 360...\n" )
 	processSoftwareData( "xbox360" )
-	updateFile.write( "\nSoftware updates for the wii...\n" )
+	logging.info( "\nSoftware updates for the wii...\n" )
 	processSoftwareData( "wii" )
 
 	# deal with the game hardware.
-	updateFile.write( "\nHardware Updates...\n" )
-	updateFile.write( "\nHardware updates for the ps3...\n" )
+	logging.info( "\nHardware Updates...\n" )
+	logging.info( "\nHardware updates for the ps3...\n" )
 	processNonGameData( gameWS.PS3_HARDWARE )
-	updateFile.write( "\nHardware updates for the xbox 360...\n" )
+	logging.info( "\nHardware updates for the xbox 360...\n" )
 	processNonGameData( gameWS.XBOX360_HARDWARE )
-	updateFile.write( "\nHardware updates for the wii...\n" )
+	logging.info( "\nHardware updates for the wii...\n" )
 	processNonGameData( gameWS.WII_HARDWARE )
 
 	# deal with the controllers ( controllers not platform specific as far as amazon's browse node hierarchy is concerned )
-	updateFile.write( "\nGAME CONTROLLER UPDATES...\n" )
+	logging.info( "\nGAME CONTROLLER UPDATES...\n" )
 	processNonGameData( gameWS.GAME_CONTROLLERS )
 
 
@@ -258,12 +268,12 @@ if __name__ == '__main__':
 	# ever get used.  Simply moving the review connection init to where it actually gets used might work.
 	revDB = ReviewDatabase(configFileName, dbVersion)
 	revWS = ReviewWebService(configFileName, dbVersion)
-	updateFile.write( "\nREVIEW UPDATES...\n" )
-	updateFile.write( "\nReview updates for the ps3\n" )
+	logging.info( "\nREVIEW UPDATES...\n" )
+	logging.info( "\nReview updates for the ps3\n" )
 	processReviews( "ps3" )
-	updateFile.write( "\nReview updates for the xbox 360\n" )
+	logging.info( "\nReview updates for the xbox 360\n" )
 	processReviews( "xbox360" )
-	updateFile.write( "\nReview updates for the wii\n" )
+	logging.info( "\nReview updates for the wii\n" )
 	processReviews( "wii" )
 	failfile.close()
 	updateFile.close()
