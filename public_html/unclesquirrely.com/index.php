@@ -4,7 +4,7 @@
 <title>Uncle Squirrely - The Second Run Theatre of Video Games</title>
 <meta name="keywords" content= "cheap games, video games, wii, Nintendo, Playstation 3, PS3, XBox 360, console games" >
 
-<script type = "text/javascript" src = "colorbox/colorbox/jquery-1.5.min.js"></script>
+<script type = "text/javascript" src = "jquery-1.5.min.js"></script>
 <script type = "text/javascript" src = "jquery.cookie.js"></script>
 <script type = "text/javascript" src = "colorbox/colorbox/jquery.colorbox-min.js"></script>
 
@@ -147,6 +147,8 @@ var populateDivs = function( jsonData ){
 		$( gameDiv ).html( gamehtml );
 		i++;
 	}
+
+	$(".chaostv").colorbox({iframe:true, innerWidth:450, innerHeight:400});
 }
 
 $(document).ready( function(){
@@ -183,6 +185,7 @@ $(document).ready( function(){
 
 	// lightbox setups.
 	$("#aboutNav").colorbox( { height:500, width:500 } );
+	$(".chaostv").colorbox({iframe:true, innerWidth:425, innerHeight:344});
 
 });
 
