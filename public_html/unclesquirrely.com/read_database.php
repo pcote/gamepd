@@ -35,11 +35,12 @@ class GameGetter
 
 		where price = 0 and platform = '$this->platform'
 		and release_date <= now() 
+		$this->orderClause
+		limit $this->lowerLimit, 10
 EOD;
 		
-		$query = $query . " " . $this->orderClause;
-		
-		$query = $query . " limit $this->lowerLimit,10";
+		/*$query = $query . " " . $this->orderClause;
+		$query = $query . " limit $this->lowerLimit,10";*/
 
 		$this->query = $query;
 		$dbc = mysql_connect( $host, $user, $pw ) or die( "cannot connect to host: " . $host . " for user: " . $user );
