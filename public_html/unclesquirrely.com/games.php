@@ -18,7 +18,8 @@ else
 
 
 $gameList = $gameGetter->getGameData();
+$query = $gameGetter->getQuery();
+//echo( $query );
 $jsonList = json_encode( $gameList );
 echo( $jsonList );
-//require( "game_table.php" );
 ?>

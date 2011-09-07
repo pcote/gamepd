@@ -3,6 +3,7 @@ class GameGetter
 {
 
 	private $orderClause = "";
+	private $query = "";
 	
 	public function getGameData()
 	{
@@ -11,7 +12,6 @@ class GameGetter
 		// TODO: Clarification of rules for what's allowed on the pages needed here.
 		// union select is repeat of query above to grab the 4 or 5 edge cases where the list price is set to zero (not actually free)
 		$query = <<<EOD
-
 		select 
 		g.asin, g.game_title, g.price, g.last_updated, g.item_image, g.item_page, g.lowest_price, g.platform, g.release_date,
 		gr.score, gr.article_link, gr.review_content
@@ -40,10 +40,12 @@ EOD;
 		$query = $query . " " . $this->orderClause;
 		
 		$query = $query . " limit $this->lowerLimit,10";
+
+		$this->query = $query;
 		$dbc = mysql_connect( $host, $user, $pw ) or die( "cannot connect to host: " . $host . " for user: " . $user );
 		mysql_select_db( $db ) or die( "failed to connect to database $db" );
 		
-		$rs = mysql_query( $query );
+		$rs = mysql_query( $this->query );
 
 		$gameList = array();
 		$gameCount = 0;
@@ -90,6 +92,11 @@ EOD;
 	public function __tostring()
 	{
 		return "GameGetter object instance...<br /> platform: $this->platform"; 
+	}
+
+	// exists for the sake of performance testing.
+	public function getQuery(){
+		return $this->query;
 	}
 
 	private function setPageNum( $pageNum )
