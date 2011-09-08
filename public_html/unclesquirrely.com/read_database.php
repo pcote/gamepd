@@ -31,7 +31,7 @@ class GameGetter
 		gr.score, gr.article_link, gr.review_content 
 		from games as g 
 		left join game_reviews gr on g.asin = gr.asin 
-		where price = 0 and platform = 'wii' and release_date <= now() 
+		where price = 0 and platform = '$this->platform' and release_date <= now() 
 		) as x
 		$this->orderClause
 		limit $this->lowerLimit, 10
