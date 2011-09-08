@@ -21,6 +21,7 @@ from pdb import set_trace
 import decimal
 import urllib
 import string
+import re
 from xml.dom import minidom
 
 
@@ -44,8 +45,8 @@ OLD_PRICE = 4
 ITEM_IMAGE = 5
 ITEM_PAGE = 6
 LOWEST_PRICE = 7
-PLATFORM = 10
-RELEASE_DATE = 11
+PLATFORM = 8
+RELEASE_DATE = 9
 
 REVIEW_ID = 0
 REVIEW_SCORE = 1
@@ -115,6 +116,38 @@ class RecoverDBExceptions(object):
 			return self.res	
 		return wrapperfunc		
 
+class ValidateAsin( object ):
+	def __init__( self ):
+		pass
+
+	def __call__( self, f ):
+		def wrapperfunc( *args ):
+			pattern = "^[A-Z0-9]{10}$"
+			asin = args[1]
+			matchOb = re.match( pattern, asin )
+			if matchOb:
+				self.res = f( *args )
+			else:
+				raise Exception( "Invalid Asin: %s" % asin )
+			self.res = f( *args )
+			return self.res
+		return wrapperfunc
+
+
+class ValidatePlatform( object ):
+	def __init__(self):
+		pass
+
+	def __call__( self, f ):
+		def wrapperfunc( *args ):
+			platform = args[1]
+			if platform not in [ 'all', 'wii', 'ps3', 'xbox360' ]:
+				raise Exception( "%s is an invalid platform" % platform )
+			self.res = f( *args )
+			return self.res
+		return wrapperfunc
+
+
 
 class GameDatabase:
 	"""Manages game software or hardware data that has to go in, or, or be updated in the database"""
@@ -150,7 +183,7 @@ class GameDatabase:
 			'reviewLink':None, 'lastUpdated':resSet[LAST_UPDATED], 'platform':resSet[PLATFORM], 'releaseDate':resSet[RELEASE_DATE] }
 		return gameRec
 
-
+	@ValidateAsin()
 	def getGameRecord( self, asinNum ):
 		"""Pull a single game rec based on it's asin from the database."""
 		gameRec = None
@@ -162,6 +195,7 @@ class GameDatabase:
 		
 		return gameRec
 
+	@ValidatePlatform()
 	def getAllGames( self, platform ):
 		"""
 		Gets a full list os ASINS.
@@ -182,7 +216,7 @@ class GameDatabase:
 
 		return gameList
 
-
+	@ValidateAsin()
 	def getHardwareRecord( self, asinNum ):
 		"""Pull a hardware rec based on the asin.
 		Keyword arguments:
@@ -194,14 +228,6 @@ class GameDatabase:
 		resSet = self.csr.fetchone()
 		return resSet
 
-
-	def asinLookup( self, asinNum, columnName ):
-		"""done on a lark.  not sure whether or not this would replace the two other redundant functions above this one. ( in the source code )"""
-
-		query = """ select """ + columnName + """ from games where asin = %s"""
-		resCount = self.csr.execute( query, ( asinNum ) )
-		resSet = self.csr.fetchone()
-		return resSet
 
 
 	def getGameByTitle( self, titleArg ):
@@ -261,12 +287,13 @@ class GameDatabase:
 		query = "update games set lowest_price = %s where asin = %s"
 		self.csr.execute( query, ( wsGame[ 'lowestPrice'], wsGame[ 'asin' ] ) )	
 
-
+	@ValidateAsin()
 	def removeGame( self, asin ):
 		"""Deletes a game according to it's Amazon asin number"""
 		query = "delete from games where asin = %s"
 		self.csr.execute( query, ( asin ) )
 
+	@ValidateAsin()
 	def isExcluded( self, asin ):
 		"""
 		Check to see if the given asin is on the list of excluded records.
@@ -361,6 +388,7 @@ class GameWebService:
 				price = price / 100.0
 		return price
 
+	@ValidatePlatform()
 	@WebServiceRecovery()
 	def getGames( self, platform, pageNum ):
 		"""pull games based on the platform. 
@@ -368,6 +396,8 @@ class GameWebService:
 		 going straight to ps3 data.  Eventually, it's going to need to get wii and xbox 360 titles."""
 
 		bNode = "14210861" # defaults to ps3 game node
+
+		
 
 		if platform == 'xbox360':
 			bNode = self.XBOX360_GAMES
@@ -406,6 +436,7 @@ class GameWebService:
 		return gameList
 
 	
+	@ValidateAsin()
 	@WebServiceRecovery()
 	def getSingleGame( self, asin, platform=None ):
 		"""returns data on a single game. ( mainly used for debugging and testing special cases )"""
@@ -437,6 +468,7 @@ class GameWebService:
 			gameRec['platform'] = platform
 		return gameRec
 				
+
 	@WebServiceRecovery()
 	def getGamePageCount( self, platform ):
 		"""gets the number of pages available of data available for this platform.
@@ -451,7 +483,6 @@ class GameWebService:
 		node = self.api.item_search( "VideoGames", BrowseNode=bNode, ResponseGroup="Small" )
 		pageCount = int( node.Items.TotalPages )
 		return pageCount
-
 
 
 
@@ -497,6 +528,7 @@ class ReviewWebService:
 		cp.read( configFileName )
 		self.gameprokey=cp.get( dbVer, "gameprokey" )
 
+	@ValidatePlatform()
 	@WebServiceRecovery()
 	def getAllReviews( self, platform ):
 		"""Pulls review information for all games for a given platform."""
